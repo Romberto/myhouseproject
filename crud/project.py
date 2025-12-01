@@ -79,6 +79,16 @@ async def add_image_to_project(
     db.add(image)
     await db.commit()
     await db.refresh(image)
+    # Получаем проект
+    project = await db.get(Project, project_id)
+
+    # Если превью ещё не установлено — ставим это изображение
+    if project.preview_image_id is None:
+        project.preview_image_id = image.id
+        db.add(project)
+        await db.commit()
+        await db.refresh(project)
+
     return image
 
 

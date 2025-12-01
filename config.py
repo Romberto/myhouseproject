@@ -55,6 +55,11 @@ class DataBaseConfig(BaseModel):
         "pk": "pk_%(table_name)s",
         }
 
+class YANDEX(BaseModel):
+    webdav_hostname:str = "https://webdav.yandex.ru"
+    webdav_login:str
+    webdav_password:str
+    token:str
 
 class STORAGE(BaseModel):
     path: str
@@ -75,6 +80,7 @@ class Settings(BaseSettings):
     db: DataBaseConfig
     auth: AuthCredentials
     storage:STORAGE = ""
+    yandex:YANDEX = YANDEX
 
 
 settings = Settings()

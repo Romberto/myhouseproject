@@ -7,7 +7,7 @@ from config import settings
 from core.models.db_helper import db_helper
 from crud.project import create_project, get_project, update_project, delete_project, add_image_to_project, get_image, \
     delete_image, reorder_images
-from servises.storage import delete_image_file, save_image
+from servises.storage import delete_image_file, save_image_to_yandex
 from shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUpdate
 
 
@@ -56,8 +56,9 @@ async def admin_upload_image(
     project = await get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    file_path = await save_image(file, project.slug)
+    file_path = await save_image_to_yandex(file, project.slug)
     image = await add_image_to_project(db, project_id, file_path, caption, ordering)
+
     return image
 
 

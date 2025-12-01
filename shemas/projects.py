@@ -44,7 +44,7 @@ class ProjectRead(ProjectBase):
     preview_image_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-    # images: List[ImageRead] = []
+    images: List[ImageRead] = []
 
     class Config:
         from_attributes = True
