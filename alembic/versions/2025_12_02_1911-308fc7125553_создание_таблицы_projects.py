@@ -1,8 +1,8 @@
-"""создание таблиц
+"""создание таблицы projects
 
-Revision ID: 2ee7890ee80c
+Revision ID: 308fc7125553
 Revises:
-Create Date: 2025-11-26 19:46:11.350859
+Create Date: 2025-12-02 19:11:45.147845
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "2ee7890ee80c"
+revision: str = "308fc7125553"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

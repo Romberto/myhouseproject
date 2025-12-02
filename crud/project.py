@@ -11,8 +11,14 @@ async def create_project(db: AsyncSession, project_data: ProjectCreate) -> Proje
     project = Project(**project_data.model_dump())
     db.add(project)
     await db.commit()
-    await db.refresh(project)
-    return project
+
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.images))  # 👈 Загрузка связанных изображений
+        .where(Project.id == project.id)
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one()
 
 
 async def get_project(db: AsyncSession, project_id: int) -> Optional[Project]:

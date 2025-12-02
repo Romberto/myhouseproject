@@ -1,8 +1,8 @@
-"""создание Image
+"""создание таблицы images
 
-Revision ID: 29b16af6632d
-Revises: 2ee7890ee80c
-Create Date: 2025-11-26 20:45:09.640869
+Revision ID: f014fee5bea4
+Revises: 308fc7125553
+Create Date: 2025-12-02 19:12:45.933744
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "29b16af6632d"
-down_revision: Union[str, Sequence[str], None] = "2ee7890ee80c"
+revision: str = "f014fee5bea4"
+down_revision: Union[str, Sequence[str], None] = "308fc7125553"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -29,6 +29,7 @@ def upgrade() -> None:
         sa.Column("file_path", sa.String(), nullable=False),
         sa.Column("caption", sa.String(), nullable=True),
         sa.Column("ordering", sa.Integer(), nullable=True),
+        sa.Column("is_preview", sa.Boolean(), nullable=True),
         sa.Column(
             "uploaded_at",
             sa.DateTime(timezone=True),
