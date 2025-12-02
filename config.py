@@ -36,10 +36,10 @@ class ApiPrefix(BaseModel):
     v1: ApiV1Prefix = ApiV1Prefix()
 
 
-
 class AuthCredentials(BaseModel):
     login: str
     password: str
+
 
 class DataBaseConfig(BaseModel):
     url: PostgresDsn
@@ -53,16 +53,19 @@ class DataBaseConfig(BaseModel):
         "ck": "ck_%(table_name)s_%(constraint_name)s",
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
         "pk": "pk_%(table_name)s",
-        }
+    }
+
 
 class YANDEX(BaseModel):
-    webdav_hostname:str = "https://webdav.yandex.ru"
-    webdav_login:str
-    webdav_password:str
-    token:str
+    webdav_hostname: str = "https://webdav.yandex.ru"
+    webdav_login: str
+    webdav_password: str
+    token: str
+
 
 class STORAGE(BaseModel):
     path: str
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -70,7 +73,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_prefix="APP__",
         env_nested_delimiter="__",
-        )
+    )
 
     bot: Bot = ""
     admin: Admin = ""
@@ -79,8 +82,8 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
     auth: AuthCredentials
-    storage:STORAGE = ""
-    yandex:YANDEX = YANDEX
+    storage: STORAGE = ""
+    yandex: YANDEX = YANDEX
 
 
 settings = Settings()

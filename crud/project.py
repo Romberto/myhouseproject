@@ -44,7 +44,7 @@ async def list_projects(
     skip: int = 0,
     limit: int = 100,
     search: Optional[str] = None,
-    only_published: bool = False
+    only_published: bool = False,
 ) -> List[Project]:
     query = select(Project).options(selectinload(Project.images))
 
@@ -60,10 +60,14 @@ async def list_projects(
     return list(result.scalars().all())
 
 
-async def update_project(db: AsyncSession, project_id: int, project_data: ProjectUpdate) -> Optional[Project]:
+async def update_project(
+    db: AsyncSession, project_id: int, project_data: ProjectUpdate
+) -> Optional[Project]:
     update_data = project_data.model_dump(exclude_unset=True)
     if update_data:
-        await db.execute(update(Project).where(Project.id == project_id).values(**update_data))
+        await db.execute(
+            update(Project).where(Project.id == project_id).values(**update_data)
+        )
         await db.commit()
     return await get_project(db, project_id)
 
@@ -77,24 +81,17 @@ async def delete_project(db: AsyncSession, project_id: int) -> bool:
 async def add_image_to_project(
     db: AsyncSession,
     project_id: int,
-    file_path: str,
+    link_to_disk: str,
+    public_url: str,
     caption: Optional[str] = None,
-    ordering: int = 0
+    ordering: int = 0,
 ) -> Image:
-    image = Image(project_id=project_id, file_path=file_path, caption=caption, ordering=ordering)
+    image = Image(
+        project_id=project_id, link_to_disk=link_to_disk, public_url=public_url, caption=caption, ordering=ordering
+    )
     db.add(image)
     await db.commit()
     await db.refresh(image)
-    # Получаем проект
-    project = await db.get(Project, project_id)
-
-    # Если превью ещё не установлено — ставим это изображение
-    if project.preview_image_id is None:
-        project.preview_image_id = image.id
-        db.add(project)
-        await db.commit()
-        await db.refresh(project)
-
     return image
 
 
@@ -111,6 +108,8 @@ async def delete_image(db: AsyncSession, image_id: int) -> bool:
 
 async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     for image_id, ordering in image_orders.items():
-        await db.execute(update(Image).where(Image.id == int(image_id)).values(ordering=ordering))
+        await db.execute(
+            update(Image).where(Image.id == int(image_id)).values(ordering=ordering)
+        )
     await db.commit()
     return True

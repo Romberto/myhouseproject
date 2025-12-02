@@ -14,6 +14,8 @@ def verify_telegram_auth(auth_data: Dict) -> bool:
     data_check_string = "\n".join(data_check_arr)
 
     secret_key = hashlib.sha256(settings.bot.token.encode()).digest()
-    hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+    hmac_hash = hmac.new(
+        secret_key, data_check_string.encode(), hashlib.sha256
+    ).hexdigest()
 
     return hmac_hash == check_hash

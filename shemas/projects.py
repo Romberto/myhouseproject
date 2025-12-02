@@ -6,9 +6,11 @@ from datetime import datetime
 class ImageRead(BaseModel):
     id: int
     project_id: int
-    file_path: str
+    link_to_disk:str
+    public_url:str
     caption: Optional[str] = None
     ordering: int
+    is_preview: bool
     uploaded_at: datetime
 
     class Config:
@@ -41,7 +43,6 @@ class ProjectUpdate(BaseModel):
 
 class ProjectRead(ProjectBase):
     id: int
-    preview_image_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
     images: List[ImageRead] = []
@@ -57,6 +58,7 @@ class TelegramAuthData(BaseModel):
     photo_url: Optional[str] = None
     auth_date: int
     hash: str
+
 
 class PassLoginRequest(BaseModel):
     login: str

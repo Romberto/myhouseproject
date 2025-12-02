@@ -21,28 +21,22 @@ def get_file_extension(filename: str) -> str:
 def validate_image(file: UploadFile) -> None:
     ext = get_file_extension(file.filename or "")
     if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail=f"Invalid file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
 
 
-# YANDEX_WEBDAV = {
-#     "webdav_hostname": settings.yandex.webdav_hostname,
-#     "webdav_login": settings.yandex.webdav_login,
-#     "webdav_password": settings.yandex.webdav_password
-# }
-#
-# client = Client(YANDEX_WEBDAV)
+y = yadisk.AsyncClient(token=settings.yandex.token)  # <-- сюда токен
 
 
-
-y = yadisk.YaDisk(token=settings.yandex.token)  # <-- сюда токен
-
-async def save_image_to_yandex(file: UploadFile, project_slug: str) -> str:
+async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     # Папка проекта на Яндекс.Диске
     remote_dir = f"/projects/{project_slug}"
 
     # Создаём папку, если её нет
-    if not y.exists(remote_dir):
-        y.mkdir(remote_dir)
+    if not await y.exists(remote_dir):
+        await y.mkdir(remote_dir)
 
     # Задаём уникальное имя файла
     file_ext = file.filename.split(".")[-1]
@@ -54,21 +48,39 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> str:
     file_like = io.BytesIO(content)
 
     # Загружаем файл
-    y.upload(file_like, remote_path)
+    await y.upload(file_like, remote_path)
 
     # Делаем файл публичным и получаем ссылку
-    if not y.is_public_file(remote_path):
-        y.publish(remote_path)
-    meta = y.get_meta(remote_path)
-    direct_url = meta.public_url
 
-    return y.get_download_link(remote_path)
+    file = await y.publish(remote_path)
+    meta = await y.get_meta(remote_path)
+
+    # Вот здесь правильный доступ
+    public_url = await  meta.get_download_link()
+    return {'link_to_disk': str(file.path), "public_url": str(public_url)}
+
+#
+# def delete_image_file(file_path: str) -> None:
+#     if file_path.startswith("/storage/images/"):
+#         full_path = Path(settings.storage.path) / file_path.replace(
+#             "/storage/images/", ""
+#         )
+#         if full_path.exists():
+#             full_path.unlink()
+from urllib.parse import urlparse, unquote
+
+async def delete_image_file(file_path: str) -> None:
+    """
+    Удаляет файл с Яндекс.Диска.
+    В `file_path` передаётся публичная ссылка, полученная через y.get_download_link().
+    """
+
+    if not file_path:
+        return
+
+    try:
+        await y.remove(file_path)
 
 
-
-
-def delete_image_file(file_path: str) -> None:
-    if file_path.startswith("/storage/images/"):
-        full_path = Path(settings.storage.path) / file_path.replace("/storage/images/", "")
-        if full_path.exists():
-            full_path.unlink()
+    except Exception as e:
+        print(f"Ошибка удаления файла: {e}")
