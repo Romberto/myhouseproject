@@ -6,8 +6,8 @@ from datetime import datetime
 class ImageRead(BaseModel):
     id: int
     project_id: int
-    link_to_disk:str
-    public_url:str
+    link_to_disk: str
+    public_url: str
     caption: Optional[str] = None
     ordering: int
     is_preview: bool

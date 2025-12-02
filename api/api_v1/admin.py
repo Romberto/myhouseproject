@@ -83,12 +83,11 @@ async def admin_upload_image(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
     file_path = await save_image_to_yandex(file, project.slug)
-    link_to_disk = file_path['link_to_disk']
-    public_url = file_path['public_url']
-    print("*/"*50)
-    print(link_to_disk, public_url)
-    image = await add_image_to_project(db, project_id,link_to_disk,
-    public_url,caption, ordering)
+    link_to_disk = file_path["link_to_disk"]
+    public_url = file_path["public_url"]
+    image = await add_image_to_project(
+        db, project_id, link_to_disk, public_url, caption, ordering
+    )
 
     return image
 

@@ -87,7 +87,11 @@ async def add_image_to_project(
     ordering: int = 0,
 ) -> Image:
     image = Image(
-        project_id=project_id, link_to_disk=link_to_disk, public_url=public_url, caption=caption, ordering=ordering
+        project_id=project_id,
+        link_to_disk=link_to_disk,
+        public_url=public_url,
+        caption=caption,
+        ordering=ordering,
     )
     db.add(image)
     await db.commit()

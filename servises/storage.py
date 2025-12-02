@@ -1,13 +1,9 @@
 import io
-import os
-import uuid
-from pathlib import Path
-from pprint import pprint
 
+from PIL import Image as PILImage
 from fastapi import UploadFile, HTTPException
 import yadisk
 import uuid
-from webdav3.client import Client
 from config import settings
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
@@ -31,24 +27,36 @@ y = yadisk.AsyncClient(token=settings.yandex.token)  # <-- сюда токен
 
 
 async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
-    # Папка проекта на Яндекс.Диске
+    # Папка проекта на Яндекс.Диске+
+    validate_image(file)
     remote_dir = f"/projects/{project_slug}"
 
     # Создаём папку, если её нет
     if not await y.exists(remote_dir):
         await y.mkdir(remote_dir)
 
+    # Читаем содержимое файла
+    content = await file.read()
+    img = PILImage.open(io.BytesIO(content))
+
+    # Сжимаем изображение (например JPEG, качество 75)
+    compressed_io = io.BytesIO()
+    if img.format in ["JPEG", "JPG"]:
+        img.save(compressed_io, format="JPEG", quality=75, optimize=True)
+    elif img.format == "PNG":
+        img.save(compressed_io, format="PNG", optimize=True)
+    else:
+        # для других форматов сохраняем без изменений
+        img.save(compressed_io, format=img.format)
+
+    compressed_io.seek(0)
+
     # Задаём уникальное имя файла
     file_ext = file.filename.split(".")[-1]
     filename = f"{uuid.uuid4()}.{file_ext}"
     remote_path = f"{remote_dir}/{filename}"
 
-    # Читаем содержимое файла в поток BytesIO
-    content = await file.read()
-    file_like = io.BytesIO(content)
-
-    # Загружаем файл
-    await y.upload(file_like, remote_path)
+    await y.upload(compressed_io, remote_path)
 
     # Делаем файл публичным и получаем ссылку
 
@@ -56,8 +64,9 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     meta = await y.get_meta(remote_path)
 
     # Вот здесь правильный доступ
-    public_url = await  meta.get_download_link()
-    return {'link_to_disk': str(file.path), "public_url": str(public_url)}
+    public_url = await meta.get_download_link()
+    return {"link_to_disk": str(file.path), "public_url": str(public_url)}
+
 
 #
 # def delete_image_file(file_path: str) -> None:
@@ -68,6 +77,7 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
 #         if full_path.exists():
 #             full_path.unlink()
 from urllib.parse import urlparse, unquote
+
 
 async def delete_image_file(file_path: str) -> None:
     """
@@ -80,7 +90,6 @@ async def delete_image_file(file_path: str) -> None:
 
     try:
         await y.remove(file_path)
-
 
     except Exception as e:
         print(f"Ошибка удаления файла: {e}")
