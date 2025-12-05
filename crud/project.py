@@ -1,7 +1,10 @@
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
+
+from starlette import status
 
 from core.models.projects import Project, Image
 from shemas.projects import ProjectCreate, ProjectUpdate
@@ -117,3 +120,35 @@ async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
         )
     await db.commit()
     return True
+
+async def image_is_preview(db:AsyncSession, image_id:int, project_id) -> bool:
+    # Проверяем, что изображение принадлежит проекту
+    q = select(Image).where(Image.id == image_id, Image.project_id == project_id)
+    result = await db.execute(q)
+    image = result.scalar_one_or_none()
+
+    if image is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found for this project"
+            )
+
+    # 1. Сбрасываем у всех изображений проекта is_preview = False
+    await db.execute(
+        update(Image)
+        .where(Image.project_id == project_id)
+        .values(is_preview=False)
+        )
+
+    # 2. Устанавливаем превью для выбранного изображения
+    await db.execute(
+        update(Image)
+        .where(Image.id == image_id)
+        .values(is_preview=True)
+        )
+
+    # Применяем изменения
+    await db.commit()
+
+    return True
+

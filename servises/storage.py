@@ -26,8 +26,10 @@ def validate_image(file: UploadFile) -> None:
 y = yadisk.AsyncClient(token=settings.yandex.token)  # <-- сюда токен
 
 
+
+
 async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
-    # Папка проекта на Яндекс.Диске+
+    # Папка проекта на Яндекс
     validate_image(file)
     remote_dir = f"/projects/{project_slug}"
 
@@ -39,16 +41,18 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     content = await file.read()
     img = PILImage.open(io.BytesIO(content))
 
-    # Сжимаем изображение (например JPEG, качество 75)
-    compressed_io = io.BytesIO()
-    if img.format in ["JPEG", "JPG"]:
-        img.save(compressed_io, format="JPEG", quality=75, optimize=True)
-    elif img.format == "PNG":
-        img.save(compressed_io, format="PNG", optimize=True)
-    else:
-        # для других форматов сохраняем без изменений
-        img.save(compressed_io, format=img.format)
+    # --- 1. Ограничиваем размер (resize) ---
+    max_size = (1600, 1600)
+    img.thumbnail(max_size, PILImage.LANCZOS)
 
+    # --- 2. Сохраняем как WEBP (лучшее сжатие) ---
+    compressed_io = io.BytesIO()
+    img.save(
+        compressed_io,
+        format="WEBP",
+        quality=70,
+        method=6,
+    )
     compressed_io.seek(0)
 
     # Задаём уникальное имя файла
@@ -68,15 +72,6 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     return {"link_to_disk": str(file.path), "public_url": str(public_url)}
 
 
-#
-# def delete_image_file(file_path: str) -> None:
-#     if file_path.startswith("/storage/images/"):
-#         full_path = Path(settings.storage.path) / file_path.replace(
-#             "/storage/images/", ""
-#         )
-#         if full_path.exists():
-#             full_path.unlink()
-from urllib.parse import urlparse, unquote
 
 
 async def delete_image_file(file_path: str) -> None:

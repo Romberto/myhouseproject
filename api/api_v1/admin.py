@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Dict
@@ -15,8 +13,8 @@ from crud.project import (
     add_image_to_project,
     get_image,
     delete_image,
-    reorder_images,
-)
+    reorder_images, image_is_preview,
+    )
 from servises.storage import delete_image_file, save_image_to_yandex
 from shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUpdate
 
@@ -59,7 +57,7 @@ async def admin_delete_project(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
     for image in project.images:
-        delete_image_file(image.file_path)
+        await delete_image_file(image.file_path)
     success = await delete_project(db, project_id)
     if not success:
         raise HTTPException(
@@ -101,7 +99,6 @@ async def admin_delete_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
         )
-    project = await get_project(db, project_id)
     await delete_image_file(image.link_to_disk)
     success = await delete_image(db, image_id)
     if not success:
@@ -125,3 +122,17 @@ async def admin_reorder_images(
         )
     await reorder_images(db, image_orders)
     return {"message": "Images reordered successfully"}
+
+@router.post("/projects/{project_id}/images/ispreview/{image_id}")
+async def admin_image_is_preview(
+        project_id: int,
+        image_id:int,
+        db:AsyncSession = Depends(db_helper.session_getter)
+        ):
+    project = await get_project(db, project_id)
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
+    await image_is_preview(db, image_id, project_id)
+    return {"message": "Images is_preview successfully"}
