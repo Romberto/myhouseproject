@@ -63,13 +63,9 @@ class YANDEX(BaseModel):
     token: str
 
 
-class STORAGE(BaseModel):
-    path: str
-
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
+        env_file=BASE_DIR / "../.env",
         case_sensitive=False,
         env_prefix="APP__",
         env_nested_delimiter="__",
@@ -82,7 +78,6 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
     auth: AuthCredentials
-    storage: STORAGE = ""
     yandex: YANDEX = YANDEX
 
 

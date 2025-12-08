@@ -1,6 +1,4 @@
 import asyncio
-import os
-import sys
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -11,9 +9,8 @@ from alembic import context
 
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from config import settings
-from core.models.base import Base
-from core.models.projects import Project, Image
+from src.config import settings
+from src.core.models.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Foreign
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from core.models.base import Base
+from src.core.models.base import Base
 
 
 class Project(Base):

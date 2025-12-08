@@ -4,15 +4,16 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from api import router as api_router
-from core.models.db_helper import db_helper
-from config import settings
+from src.core.models.db_helper import db_helper
+from .api import router as api_router
+
+from src.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    db_helper.dispose()
+    await db_helper.dispose()
 
 
 main_app = FastAPI(lifespan=lifespan)
@@ -34,5 +35,5 @@ main_app.include_router(api_router, prefix=settings.api.prefix)
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:main_app", reload=True, host=settings.run.host, port=settings.run.port
+        "src.main:main_app", reload=True, host=settings.run.host, port=settings.run.port
     )

@@ -4,7 +4,7 @@ from PIL import Image as PILImage
 from fastapi import UploadFile, HTTPException
 import yadisk
 import uuid
-from config import settings
+from src.config import settings
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -24,8 +24,6 @@ def validate_image(file: UploadFile) -> None:
 
 
 y = yadisk.AsyncClient(token=settings.yandex.token)  # <-- сюда токен
-
-
 
 
 async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
@@ -70,8 +68,6 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     # Вот здесь правильный доступ
     public_url = await meta.get_download_link()
     return {"link_to_disk": str(file.path), "public_url": str(public_url)}
-
-
 
 
 async def delete_image_file(file_path: str) -> None:

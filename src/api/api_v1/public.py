@@ -1,21 +1,14 @@
 from typing import List, Optional
-from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from config import settings
-from core.models.db_helper import db_helper
-from core.security.jwt import create_access_token, is_admin, verify_password
-from crud.project import *
-from servises.telegram_auth import verify_telegram_auth
-from shemas.projects import (
+from src.config import settings
+from src.core.models.db_helper import db_helper
+from src.shemas.projects import (
     ProjectRead,
-    AuthResponse,
-    PassLoginRequest,
-    TelegramAuthData,
 )
 
 router = APIRouter(prefix=settings.api.v1.public, tags=["public"])

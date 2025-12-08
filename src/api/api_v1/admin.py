@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Dict
 
-from api.api_v1.dependencies import require_admin
-from config import settings
-from core.models.db_helper import db_helper
-from crud.project import (
+from src.api.api_v1.dependencies import require_admin
+from src.config import settings
+from src.core.models.db_helper import db_helper
+from src.crud.project import (
     create_project,
     get_project,
     update_project,
@@ -13,10 +13,11 @@ from crud.project import (
     add_image_to_project,
     get_image,
     delete_image,
-    reorder_images, image_is_preview,
-    )
-from servises.storage import delete_image_file, save_image_to_yandex
-from shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUpdate
+    reorder_images,
+    image_is_preview,
+)
+from src.servises.storage import delete_image_file, save_image_to_yandex
+from src.shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUpdate
 
 
 router = APIRouter(
@@ -123,12 +124,11 @@ async def admin_reorder_images(
     await reorder_images(db, image_orders)
     return {"message": "Images reordered successfully"}
 
+
 @router.post("/projects/{project_id}/images/ispreview/{image_id}")
 async def admin_image_is_preview(
-        project_id: int,
-        image_id:int,
-        db:AsyncSession = Depends(db_helper.session_getter)
-        ):
+    project_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
+):
     project = await get_project(db, project_id)
     if not project:
         raise HTTPException(

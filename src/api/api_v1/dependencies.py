@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
-from core.security.jwt import decode_access_token, is_admin
+from src.core.security.jwt import decode_access_token, is_admin
 
 security = HTTPBearer(auto_error=False)
 

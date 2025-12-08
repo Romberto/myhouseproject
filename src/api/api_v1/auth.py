@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
-from config import settings
-from core.security.jwt import create_access_token, is_admin, verify_password
-from servises.telegram_auth import verify_telegram_auth
-from shemas.projects import AuthResponse, TelegramAuthData, PassLoginRequest
+from src.config import settings
+from src.core.security.jwt import create_access_token, is_admin, verify_password
+from src.servises.telegram_auth import verify_telegram_auth
+from src.shemas.projects import AuthResponse, TelegramAuthData, PassLoginRequest
 
 router = APIRouter(tags=["AUth"])
 

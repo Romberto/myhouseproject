@@ -6,8 +6,8 @@ from typing import List, Optional
 
 from starlette import status
 
-from core.models.projects import Project, Image
-from shemas.projects import ProjectCreate, ProjectUpdate
+from src.core.models.projects import Project, Image
+from src.shemas.projects import ProjectCreate, ProjectUpdate
 
 
 async def create_project(db: AsyncSession, project_data: ProjectCreate) -> Project:
@@ -121,7 +121,8 @@ async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     await db.commit()
     return True
 
-async def image_is_preview(db:AsyncSession, image_id:int, project_id) -> bool:
+
+async def image_is_preview(db: AsyncSession, image_id: int, project_id) -> bool:
     # Проверяем, что изображение принадлежит проекту
     q = select(Image).where(Image.id == image_id, Image.project_id == project_id)
     result = await db.execute(q)
@@ -130,25 +131,18 @@ async def image_is_preview(db:AsyncSession, image_id:int, project_id) -> bool:
     if image is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Image not found for this project"
-            )
+            detail="Image not found for this project",
+        )
 
     # 1. Сбрасываем у всех изображений проекта is_preview = False
     await db.execute(
-        update(Image)
-        .where(Image.project_id == project_id)
-        .values(is_preview=False)
-        )
+        update(Image).where(Image.project_id == project_id).values(is_preview=False)
+    )
 
     # 2. Устанавливаем превью для выбранного изображения
-    await db.execute(
-        update(Image)
-        .where(Image.id == image_id)
-        .values(is_preview=True)
-        )
+    await db.execute(update(Image).where(Image.id == image_id).values(is_preview=True))
 
     # Применяем изменения
     await db.commit()
 
     return True
-

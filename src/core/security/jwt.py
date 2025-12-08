@@ -2,7 +2,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from config import settings
+from src.config import settings
 
 SECRET_KEY = settings.bot.token
 ALGORITHM = "HS256"

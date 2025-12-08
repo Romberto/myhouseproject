@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import UUID, MetaData
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from config import settings
+from src.config import settings
 
 
 class Base(DeclarativeBase):

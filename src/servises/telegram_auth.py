@@ -2,7 +2,7 @@ import hashlib
 import hmac
 from typing import Dict
 
-from config import settings
+from src.config import settings
 
 
 def verify_telegram_auth(auth_data: Dict) -> bool:
