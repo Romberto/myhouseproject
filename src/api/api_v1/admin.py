@@ -58,7 +58,7 @@ async def admin_delete_project(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
     for image in project.images:
-        await delete_image_file(image.file_path)
+        await delete_image_file(image.link_to_disk)
     success = await delete_project(db, project_id)
     if not success:
         raise HTTPException(
