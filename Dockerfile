@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем код приложения
 COPY ./src ./src
+COPY ./alembic.ini ./
+COPY ./alembic ./alembic
 
 # Переменные окружения
 ENV PYTHONUNBUFFERED=1
