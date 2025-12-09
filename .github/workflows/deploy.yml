@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: CI/CD Deploy
 
 on:
   push:
@@ -10,18 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Deploy project
-        run: |
-          sshpass -p "${{ secrets.DEPLOY_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
-            cd ${{ secrets.PROJECT_PATH }} &&
-            git fetch --all &&
-            git reset --hard origin/main &&
-            docker compose down &&
-            docker compose up -d --build
-          "
+    - name: Deploy to server
+      env:
+        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+        PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+      run: |
+        sshpass -p "$DEPLOY_PASSWORD" ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+          set -e
+          # Создаем директорию если не существует
+          mkdir -p $PROJECT_PATH
+          cd $PROJECT_PATH
+
+          # Если репозиторий пустой, клонируем его
+          if [ ! -d .git ]; then
+            git clone https://github.com/${{ github.repository }} . 
+          fi
+
+          # Обновляем репозиторий
+          git fetch --all
+          git reset --hard origin/main
+
+          # Строим и запускаем контейнеры
+          docker compose down
+          docker compose up -d --build
+
+          # Применяем миграции
+          docker compose exec web alembic upgrade head
+        "
