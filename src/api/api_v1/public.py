@@ -7,6 +7,7 @@ from starlette import status
 
 from src.config import settings
 from src.core.models.db_helper import db_helper
+from src.crud.project import list_projects, get_project_by_slug
 from src.shemas.projects import (
     ProjectRead,
 )
