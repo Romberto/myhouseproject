@@ -1,8 +1,8 @@
-"""изменение зависимостей
+"""сщздание таблиц
 
-Revision ID: 3a44f53f41ab
-Revises: ad8cea0907b1
-Create Date: 2025-12-02 22:43:46.824283
+Revision ID: 51f51e4598e7
+Revises:
+Create Date: 2025-12-09 11:53:37.685094
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "3a44f53f41ab"
-down_revision: Union[str, Sequence[str], None] = "ad8cea0907b1"
+revision: str = "51f51e4598e7"
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
