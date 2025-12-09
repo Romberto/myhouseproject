@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: resto
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - projhouse-net
     ports:
       - "5432:5432"
 
@@ -27,6 +29,38 @@ services:
     command: >
       sh -c "alembic upgrade head &&
              uvicorn src.main:main_app --host 0.0.0.0 --port 8000"
+    networks:
+      - projhouse-net
+
+  nginx:
+    image: nginx:stable
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    networks:
+      - projhouse-net
+    depends_on:
+      - web
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/certbot/www:/var/www/certbot
+      - ./nginx/certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook 'nginx -s reload'; done"
+    networks:
+      - projhouse-net
+
 
 volumes:
   db_data:
+
+networks:
+  projhouse-net:
