@@ -1,12 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
 from src.core.models.base import Base
 
 
-class Project(Base):
-    __tablename__ = "projects"
+class Blog(Base):
+    __tablename__ = "blogs"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
@@ -22,12 +21,12 @@ class Project(Base):
         "Image", back_populates="project", cascade="all, delete-orphan"
     )
 
-class Image(Base):
-    __tablename__ = "images"
+class BlogImage(Base):
+    __tablename__ = "blog_images"
 
     id = Column(Integer, primary_key=True, index=True)
-    project_id = Column(
-        Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
+    blog_id = Column(
+        Integer, ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False
     )
     link_to_disk = Column(String, nullable=False)
     public_url = Column(String, nullable=False)
@@ -35,4 +34,5 @@ class Image(Base):
     ordering = Column(Integer, default=0)
     is_preview = Column(Boolean, default=False)  # 👈 Новый флаг
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
-    project = relationship("Project", back_populates="images")
+
+    project = relationship("Blog", back_populates="images")
