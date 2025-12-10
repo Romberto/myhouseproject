@@ -22,6 +22,7 @@ class Project(Base):
         "Image", back_populates="project", cascade="all, delete-orphan"
     )
 
+
 class Image(Base):
     __tablename__ = "images"
 

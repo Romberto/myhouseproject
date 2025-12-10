@@ -25,7 +25,7 @@ async def telegram_login(auth_data: TelegramAuthData):
 @router.post("/login/password", response_model=AuthResponse)
 async def login_with_password(data: PassLoginRequest):
     print(settings.auth.login)
-    if data.login != settings.auth.login or data.password !=settings.auth.password:
+    if data.login != settings.auth.login or data.password != settings.auth.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )

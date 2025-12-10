@@ -44,9 +44,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_projects")),
     )
     op.create_index(op.f("ix_projects_id"), "projects", ["id"], unique=False)
-    op.create_index(
-        op.f("ix_projects_slug"), "projects", ["slug"], unique=True
-    )
+    op.create_index(op.f("ix_projects_slug"), "projects", ["slug"], unique=True)
     op.create_table(
         "images",
         sa.Column("id", sa.Integer(), nullable=False),
