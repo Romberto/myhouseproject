@@ -34,6 +34,9 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     # Создаём папку, если её нет
     if not await y.exists(remote_dir):
         await y.mkdir(remote_dir)
+        await y.publish(remote_dir)
+    if not await y.is_public_dir(remote_dir):
+        await y.publish(remote_dir)
 
     # Читаем содержимое файла
     content = await file.read()
@@ -65,8 +68,9 @@ async def save_image_to_yandex(file: UploadFile, project_slug: str) -> dict:
     file = await y.publish(remote_path)
     meta = await y.get_meta(remote_path)
 
-    # Вот здесь правильный доступ
-    public_url = await meta.get_download_link()
+    public_url = await y.get_public_download_link(meta.public_key)
+    # public_url = await meta.get_download_link()
+
     return {"link_to_disk": str(file.path), "public_url": str(public_url)}
 
 
