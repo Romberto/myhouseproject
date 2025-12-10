@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 class BlogImageRead(BaseModel):
     id: int
-    project_id: int
+    blog_id: int
     link_to_disk: str
     public_url: str
     is_preview: bool
