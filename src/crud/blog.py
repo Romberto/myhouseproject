@@ -10,15 +10,15 @@ from src.core.models.blog import Blog, BlogImage
 from src.shemas.blog import BlogCreate, BlogUpdate
 
 
-async def create_blog(db: AsyncSession, project_data: BlogCreate) -> Blog:
-    project = Blog(**project_data.model_dump())
-    db.add(project)
+async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
+    blog = Blog(**blog_data.model_dump())
+    db.add(blog)
     await db.commit()
 
     stmt = (
         select(Blog)
         .options(selectinload(Blog.images))  # 👈 Загрузка связанных изображений
-        .where(Blog.id == project.id)
+        .where(Blog.id == blog.id)
     )
     result = await db.execute(stmt)
     return result.scalar_one()
@@ -60,9 +60,9 @@ async def list_blogs(
 
 
 async def update_blog(
-    db: AsyncSession, blog_id: int, project_data: BlogUpdate
+    db: AsyncSession, blog_id: int, blog_data: BlogUpdate
 ) -> Optional[Blog]:
-    update_data = project_data.model_dump(exclude_unset=True)
+    update_data = blog_data.model_dump(exclude_unset=True)
     if update_data:
         await db.execute(update(Blog).where(Blog.id == blog_id).values(**update_data))
         await db.commit()
@@ -77,12 +77,12 @@ async def delete_blog(db: AsyncSession, blog_id: int) -> bool:
 
 async def add_image_to_blog(
     db: AsyncSession,
-    project_id: int,
+    blog_id: int,
     link_to_disk: str,
     public_url: str,
 ) -> BlogImage:
     image = BlogImage(
-        project_id=project_id,
+        blog_id=blog_id,
         link_to_disk=link_to_disk,
         public_url=public_url,
     )
@@ -103,10 +103,10 @@ async def delete_blog_image(db: AsyncSession, image_id: int) -> bool:
     return result.rowcount > 0
 
 
-async def blog_image_is_preview(db: AsyncSession, image_id: int, project_id) -> bool:
+async def blog_image_is_preview(db: AsyncSession, image_id: int, blog_id) -> bool:
     # Проверяем, что изображение принадлежит проекту
     q = select(BlogImage).where(
-        BlogImage.id == image_id, BlogImage.project_id == project_id
+        BlogImage.id == image_id, BlogImage.blog_id == blog_id
     )
     result = await db.execute(q)
     image = result.scalar_one_or_none()
@@ -114,13 +114,13 @@ async def blog_image_is_preview(db: AsyncSession, image_id: int, project_id) -> 
     if image is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Image not found for this project",
+            detail="Image not found for this blog",
         )
 
     # 1. Сбрасываем у всех изображений проекта is_preview = False
     await db.execute(
         update(BlogImage)
-        .where(BlogImage.project_id == project_id)
+        .where(BlogImage.blog_id == blog_id)
         .values(is_preview=False)
     )
 
