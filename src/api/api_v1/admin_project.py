@@ -21,7 +21,7 @@ from src.shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUp
 
 
 router = APIRouter(
-    dependencies=[Depends(require_admin)], prefix=settings.api.v1.admin, tags=["Admin"]
+    dependencies=[Depends(require_admin)], prefix=settings.api.v1.admin, tags=["admin_project"]
 )
 
 

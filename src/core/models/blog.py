@@ -18,7 +18,7 @@ class Blog(Base):
     )
 
     images = relationship(
-        "Image", back_populates="project", cascade="all, delete-orphan"
+        "BlogImage", back_populates="project", cascade="all, delete-orphan"
     )
 
 

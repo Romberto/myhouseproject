@@ -6,7 +6,7 @@ from src.core.security.jwt import create_access_token, is_admin, verify_password
 from src.servises.telegram_auth import verify_telegram_auth
 from src.shemas.projects import AuthResponse, TelegramAuthData, PassLoginRequest
 
-router = APIRouter(tags=["AUth"])
+router = APIRouter(tags=["Auth"])
 
 
 @router.post("/auth/telegram", response_model=AuthResponse)

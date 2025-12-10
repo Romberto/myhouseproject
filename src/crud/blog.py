@@ -58,14 +58,13 @@ async def list_blogs(
     result = await db.execute(query)
     return list(result.scalars().all())
 
+
 async def update_blog(
     db: AsyncSession, blog_id: int, project_data: BlogUpdate
 ) -> Optional[Blog]:
     update_data = project_data.model_dump(exclude_unset=True)
     if update_data:
-        await db.execute(
-            update(Blog).where(Blog.id == blog_id).values(**update_data)
-        )
+        await db.execute(update(Blog).where(Blog.id == blog_id).values(**update_data))
         await db.commit()
     return await get_blog_by_id(db, blog_id)
 
@@ -76,7 +75,7 @@ async def delete_blog(db: AsyncSession, blog_id: int) -> bool:
     return result.rowcount > 0
 
 
-async def add_image_to_project(
+async def add_image_to_blog(
     db: AsyncSession,
     project_id: int,
     link_to_disk: str,
@@ -93,7 +92,6 @@ async def add_image_to_project(
     return image
 
 
-
 async def get_blog_image(db: AsyncSession, image_id: int) -> Optional[BlogImage]:
     result = await db.execute(select(BlogImage).where(BlogImage.id == image_id))
     return result.scalar_one_or_none()
@@ -105,10 +103,11 @@ async def delete_blog_image(db: AsyncSession, image_id: int) -> bool:
     return result.rowcount > 0
 
 
-
 async def blog_image_is_preview(db: AsyncSession, image_id: int, project_id) -> bool:
     # Проверяем, что изображение принадлежит проекту
-    q = select(BlogImage).where(BlogImage.id == image_id, BlogImage.project_id == project_id)
+    q = select(BlogImage).where(
+        BlogImage.id == image_id, BlogImage.project_id == project_id
+    )
     result = await db.execute(q)
     image = result.scalar_one_or_none()
 
@@ -120,11 +119,15 @@ async def blog_image_is_preview(db: AsyncSession, image_id: int, project_id) -> 
 
     # 1. Сбрасываем у всех изображений проекта is_preview = False
     await db.execute(
-        update(BlogImage).where(BlogImage.project_id == project_id).values(is_preview=False)
+        update(BlogImage)
+        .where(BlogImage.project_id == project_id)
+        .values(is_preview=False)
     )
 
     # 2. Устанавливаем превью для выбранного изображения
-    await db.execute(update(BlogImage).where(BlogImage.id == image_id).values(is_preview=True))
+    await db.execute(
+        update(BlogImage).where(BlogImage.id == image_id).values(is_preview=True)
+    )
 
     # Применяем изменения
     await db.commit()

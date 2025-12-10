@@ -12,7 +12,7 @@ from src.shemas.projects import (
     ProjectRead,
 )
 
-router = APIRouter(prefix=settings.api.v1.public, tags=["public"])
+router = APIRouter(prefix=settings.api.v1.public, tags=["public_project"])
 
 
 @router.get("/", response_model=List[ProjectRead])
