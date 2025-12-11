@@ -13,7 +13,7 @@ router = APIRouter(prefix=settings.api.v1.blog, tags=["public_blog"])
 
 
 @router.get("/", response_model=List[BlogRead])
-async def get_projects(
+async def get_blogs(
     skip: int = 0,
     limit: int = 100,
     search: Optional[str] = None,
@@ -27,7 +27,7 @@ async def get_projects(
 
 
 @router.get("/{slug}", response_model=BlogRead)
-async def get_project_detail(
+async def get_project_blog(
     slug: str, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     project = await get_blog_by_slug(db, slug)

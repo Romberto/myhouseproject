@@ -37,7 +37,7 @@ async def admin_update_blog(
 
 
 @router.delete("/blogs/{blog_id}")
-async def admin_delete_project(
+async def admin_delete_blog(
     blog_id: int, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     blog = await get_blog_by_id(db, blog_id)
@@ -78,7 +78,7 @@ async def admin_upload_image(
 
 
 @router.delete("/blogs/{blog_id}/images/{image_id}")
-async def admin_delete_image(
+async def admin_delete_blog_image(
     blog_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     image = await get_blog_image(db, image_id)
@@ -96,7 +96,7 @@ async def admin_delete_image(
     return {"message": "BlogImage deleted successfully"}
 
 @router.post("/blogs/{blog_id}/images/ispreview/{image_id}")
-async def admin_image_is_preview(
+async def admin_blog_image_is_preview(
     blog_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     project = await get_blog_image(db, blog_id)
