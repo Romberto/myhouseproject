@@ -6,10 +6,8 @@ from datetime import datetime
 class ImageRead(BaseModel):
     id: int
     project_id: int
-    link_to_disk: str
+    path_to_file: str
     public_url: str
-    caption: Optional[str] = None
-    ordering: int
     is_preview: bool
     uploaded_at: datetime
 
@@ -31,6 +29,10 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     pass
+
+class ImageCreate(BaseModel):
+    path_to_file: str
+    public_url: str
 
 
 class ProjectUpdate(BaseModel):

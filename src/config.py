@@ -63,6 +63,10 @@ class YANDEX(BaseModel):
     webdav_password: str
     token: str
 
+class Supabase(BaseModel):
+    url:str
+    key:str
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -79,7 +83,8 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
     auth: AuthCredentials
-    yandex: YANDEX = YANDEX
+    yandex: YANDEX
+    supabase:Supabase
 
 
 settings = Settings()

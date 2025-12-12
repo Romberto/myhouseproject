@@ -27,7 +27,7 @@ async def get_blogs(
 
 
 @router.get("/{slug}", response_model=BlogRead)
-async def get_project_blog(
+async def get_blog_detail(
     slug: str, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     project = await get_blog_by_slug(db, slug)

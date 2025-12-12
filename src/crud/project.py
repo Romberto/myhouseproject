@@ -84,17 +84,13 @@ async def delete_project(db: AsyncSession, project_id: int) -> bool:
 async def add_image_to_project(
     db: AsyncSession,
     project_id: int,
-    link_to_disk: str,
+    path_to_file: str,
     public_url: str,
-    caption: Optional[str] = None,
-    ordering: int = 0,
 ) -> Image:
     image = Image(
         project_id=project_id,
-        link_to_disk=link_to_disk,
+        path_to_file=path_to_file,
         public_url=public_url,
-        caption=caption,
-        ordering=ordering,
     )
     db.add(image)
     await db.commit()

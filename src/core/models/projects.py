@@ -30,10 +30,8 @@ class Image(Base):
     project_id = Column(
         Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
     )
-    link_to_disk = Column(String, nullable=False)
+    path_to_file = Column(String, nullable=False)
     public_url = Column(String, nullable=False)
-    caption = Column(String, nullable=True)
-    ordering = Column(Integer, default=0)
     is_preview = Column(Boolean, default=False)  # 👈 Новый флаг
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     project = relationship("Project", back_populates="images")

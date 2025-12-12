@@ -7,7 +7,7 @@ from src.config import settings
 from src.core.models.db_helper import db_helper
 from src.crud.blog import create_blog, get_blog_by_id, update_blog, delete_blog, add_image_to_blog, get_blog_image, \
     delete_blog_image, blog_image_is_preview
-from src.servises.storage import delete_image_file, save_image_to_yandex
+
 from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead
 
 router = APIRouter(
@@ -45,8 +45,7 @@ async def admin_delete_blog(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
         )
-    for image in blog.images:
-        await delete_image_file(image.link_to_disk)
+
     success = await delete_blog(db, blog_id)
     if not success:
         raise HTTPException(
@@ -67,11 +66,11 @@ async def admin_upload_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    file_path = await save_image_to_yandex(file, blog.slug)
-    link_to_disk = file_path["link_to_disk"]
-    public_url = file_path["public_url"]
+#todo заменить path_to_file public_url
+    path_to_file = "link_to_disk"
+    public_url = "public_url"
     image = await add_image_to_blog(
-        db, blog_id, link_to_disk, public_url
+        db, blog_id, path_to_file, public_url
     )
 
     return image
@@ -86,7 +85,7 @@ async def admin_delete_blog_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="BlogImage not found"
         )
-    await delete_image_file(image.link_to_disk)
+
     success = await delete_blog_image(db, image_id)
     if not success:
         raise HTTPException(
