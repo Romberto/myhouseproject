@@ -19,6 +19,6 @@ async def delete_file_storage(path_to_file:str):
             Bucket=settings.storage.bucket,
             Key=path_to_file
         )
-        return True
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete file: {str(e)}")

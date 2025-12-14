@@ -68,6 +68,13 @@ async def admin_delete_project(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
+    for image in project.images:
+        remove_storage_file = await delete_file_storage(image.path_to_file)
+        if not remove_storage_file:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete image",
+                )
     success = await delete_project(db, project_id)
     if not success:
         raise HTTPException(
