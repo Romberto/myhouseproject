@@ -78,12 +78,12 @@ async def delete_blog(db: AsyncSession, blog_id: int) -> bool:
 async def add_image_to_blog(
     db: AsyncSession,
     blog_id: int,
-    link_to_disk: str,
+    path_to_file: str,
     public_url: str,
 ) -> BlogImage:
     image = BlogImage(
         blog_id=blog_id,
-        link_to_disk=link_to_disk,
+        path_to_file=path_to_file,
         public_url=public_url,
     )
     db.add(image)
