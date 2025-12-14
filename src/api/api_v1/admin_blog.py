@@ -20,6 +20,7 @@ from src.crud.blog import (
 from src.servises.storage import s3, delete_file_storage
 
 from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead, StorageBlog
+from src.shemas.projects import ImageCreate
 
 router = APIRouter(
     dependencies=[Depends(require_admin)],
@@ -79,7 +80,7 @@ async def admin_delete_blog(
 @router.post("/blogs/{blog_id}/images", response_model=BlogImageRead)
 async def admin_upload_image(
     blog_id: int,
-    file: UploadFile = File(...),
+    payload: ImageCreate,
     db: AsyncSession = Depends(db_helper.session_getter),
 ):
     blog = await get_blog_by_id(db, blog_id)
@@ -87,9 +88,8 @@ async def admin_upload_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    # todo заменить path_to_file public_url
-    path_to_file = "link_to_disk"
-    public_url = "public_url"
+    path_to_file = payload.path_to_file
+    public_url = payload.public_url
     image = await add_image_to_blog(db, blog_id, path_to_file, public_url)
 
     return image
