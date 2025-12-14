@@ -92,7 +92,7 @@ def get_presign_project_url(data: StorageProject):
         ExpiresIn=300,
     )
 
-    public_url = f"https://projects.s3.timeweb.cloud/{file_path}"
+    public_url = f"https://s3.twcstorage.ru/{settings.storage.bucket}/{file_path}"
 
     return {
         "upload_url": upload_url,
