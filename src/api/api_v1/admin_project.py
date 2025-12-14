@@ -18,7 +18,7 @@ from src.crud.project import (
     reorder_images,
     image_is_preview,
 )
-from src.servises.storage import s3
+from src.servises.storage import s3, delete_file_storage
 
 from src.shemas.projects import (
     ProjectRead,
@@ -78,7 +78,7 @@ async def admin_delete_project(
 
 
 @router.post("/projects/storage/presign")
-def get_presign_project_url(data: StorageProject):
+async def get_presign_project_url(data: StorageProject):
     file_path = f"projects/{data.slug}/{uuid4()}.webp"
 
     upload_url = s3.generate_presigned_url(
@@ -127,13 +127,21 @@ async def admin_delete_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
         )
-    success = await delete_image(db, image_id)
-    if not success:
+    remove_storage_file = await delete_file_storage(image.path_to_file)
+    if remove_storage_file:
+        success = await delete_image(db, image_id)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete image",
+            )
+        return {"message": "Image deleted successfully"}
+    else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete image",
-        )
-    return {"message": "Image deleted successfully"}
+            )
+
 
 
 @router.post("/projects/{project_id}/images/reorder")
