@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Dict
@@ -16,11 +18,21 @@ from src.crud.project import (
     reorder_images,
     image_is_preview,
 )
+from src.servises.storage import s3
 
-from src.shemas.projects import ProjectRead, ProjectCreate, ImageRead, ProjectUpdate, ImageCreate
+from src.shemas.projects import (
+    ProjectRead,
+    ProjectCreate,
+    ImageRead,
+    ProjectUpdate,
+    ImageCreate,
+    StorageProject,
+)
 
 router = APIRouter(
-    dependencies=[Depends(require_admin)], prefix=settings.api.v1.admin, tags=["admin_project"]
+    dependencies=[Depends(require_admin)],
+    prefix=settings.api.v1.admin,
+    tags=["admin_project"],
 )
 
 
@@ -63,6 +75,30 @@ async def admin_delete_project(
             detail="Failed to delete project",
         )
     return {"message": "Project deleted successfully"}
+
+
+@router.post("/projects/storage/presign")
+def get_presign_project_url(data: StorageProject):
+    file_path = f"projects/{data.slug}/{uuid4()}.webp"
+
+    upload_url = s3.generate_presigned_url(
+        "put_object",
+        Params={
+            "Bucket": settings.storage.bucket,
+            "Key": file_path,
+            "ContentType": data.content_type,
+            "ACL": "public-read",
+        },
+        ExpiresIn=300,
+    )
+
+    public_url = f"https://projects.s3.timeweb.cloud/{file_path}"
+
+    return {
+        "upload_url": upload_url,
+        "file_path": file_path,
+        "public_url": public_url,
+    }
 
 
 @router.post("/projects/{project_id}/images", response_model=ImageRead)

@@ -105,9 +105,7 @@ async def delete_blog_image(db: AsyncSession, image_id: int) -> bool:
 
 async def blog_image_is_preview(db: AsyncSession, image_id: int, blog_id) -> bool:
     # Проверяем, что изображение принадлежит проекту
-    q = select(BlogImage).where(
-        BlogImage.id == image_id, BlogImage.blog_id == blog_id
-    )
+    q = select(BlogImage).where(BlogImage.id == image_id, BlogImage.blog_id == blog_id)
     result = await db.execute(q)
     image = result.scalar_one_or_none()
 
@@ -119,9 +117,7 @@ async def blog_image_is_preview(db: AsyncSession, image_id: int, blog_id) -> boo
 
     # 1. Сбрасываем у всех изображений проекта is_preview = False
     await db.execute(
-        update(BlogImage)
-        .where(BlogImage.blog_id == blog_id)
-        .values(is_preview=False)
+        update(BlogImage).where(BlogImage.blog_id == blog_id).values(is_preview=False)
     )
 
     # 2. Устанавливаем превью для выбранного изображения

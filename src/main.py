@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
 main_app = FastAPI(lifespan=lifespan)
 
 origins = [
+    "https://romberto.github.io",
     "http://localhost:5173",  # твой фронтенд
     "http://127.0.0.1:5173",  # иногда нужно
 ]

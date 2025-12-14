@@ -20,6 +20,11 @@ class ImageUpdate(BaseModel):
     ordering: Optional[int] = None
 
 
+class StorageProject(BaseModel):
+    slug: str
+    content_type: str
+
+
 class ProjectBase(BaseModel):
     title: str
     slug: str
@@ -29,6 +34,7 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     pass
+
 
 class ImageCreate(BaseModel):
     path_to_file: str

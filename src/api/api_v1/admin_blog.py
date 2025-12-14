@@ -5,14 +5,25 @@ from typing import Optional, Dict
 from src.api.api_v1.dependencies import require_admin
 from src.config import settings
 from src.core.models.db_helper import db_helper
-from src.crud.blog import create_blog, get_blog_by_id, update_blog, delete_blog, add_image_to_blog, get_blog_image, \
-    delete_blog_image, blog_image_is_preview
+from src.crud.blog import (
+    create_blog,
+    get_blog_by_id,
+    update_blog,
+    delete_blog,
+    add_image_to_blog,
+    get_blog_image,
+    delete_blog_image,
+    blog_image_is_preview,
+)
 
 from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead
 
 router = APIRouter(
-    dependencies=[Depends(require_admin)], prefix=settings.api.v1.admin, tags=["admin_blog"]
+    dependencies=[Depends(require_admin)],
+    prefix=settings.api.v1.admin,
+    tags=["admin_blog"],
 )
+
 
 @router.post("/blogs", response_model=BlogRead)
 async def admin_create_blog(
@@ -20,6 +31,7 @@ async def admin_create_blog(
 ):
     new_blog = await create_blog(db, project)
     return new_blog
+
 
 @router.put("/blogs/{blog_id}", response_model=BlogRead)
 async def admin_update_blog(
@@ -66,12 +78,10 @@ async def admin_upload_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-#todo заменить path_to_file public_url
+    # todo заменить path_to_file public_url
     path_to_file = "link_to_disk"
     public_url = "public_url"
-    image = await add_image_to_blog(
-        db, blog_id, path_to_file, public_url
-    )
+    image = await add_image_to_blog(db, blog_id, path_to_file, public_url)
 
     return image
 
@@ -93,6 +103,7 @@ async def admin_delete_blog_image(
             detail="Failed to delete image",
         )
     return {"message": "BlogImage deleted successfully"}
+
 
 @router.post("/blogs/{blog_id}/images/ispreview/{image_id}")
 async def admin_blog_image_is_preview(

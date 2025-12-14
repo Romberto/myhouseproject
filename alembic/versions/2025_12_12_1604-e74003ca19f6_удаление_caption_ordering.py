@@ -36,8 +36,6 @@ def downgrade() -> None:
     )
     op.add_column(
         "images",
-        sa.Column(
-            "ordering", sa.INTEGER(), autoincrement=False, nullable=True
-        ),
+        sa.Column("ordering", sa.INTEGER(), autoincrement=False, nullable=True),
     )
     # ### end Alembic commands ###

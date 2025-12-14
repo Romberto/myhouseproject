@@ -57,6 +57,11 @@ class DataBaseConfig(BaseModel):
     }
 
 
+class Storage(BaseModel):
+    access_key: str
+    secret_access_key: str
+    bucket: str
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -73,6 +78,7 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
     auth: AuthCredentials
+    storage: Storage
 
 
 settings = Settings()
