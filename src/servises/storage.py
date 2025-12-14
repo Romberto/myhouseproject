@@ -13,12 +13,10 @@ s3 = boto3.client(
     region_name="ru-1",
 )
 
-async def delete_file_storage(path_to_file:str):
+
+async def delete_file_storage(path_to_file: str):
     try:
-        response = s3.delete_object(
-            Bucket=settings.storage.bucket,
-            Key=path_to_file
-        )
+        response = s3.delete_object(Bucket=settings.storage.bucket, Key=path_to_file)
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete file: {str(e)}")

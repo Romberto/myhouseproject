@@ -47,3 +47,8 @@ class BlogUpdate(BaseModel):
     slug: Optional[str] = None
     description: Optional[str] = None
     is_published: Optional[bool] = None
+
+
+class StorageBlog(BaseModel):
+    slug: str
+    content_type: str

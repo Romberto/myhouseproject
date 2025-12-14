@@ -74,7 +74,7 @@ async def admin_delete_project(
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to delete image",
-                )
+            )
     success = await delete_project(db, project_id)
     if not success:
         raise HTTPException(
@@ -147,8 +147,7 @@ async def admin_delete_image(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete image",
-            )
-
+        )
 
 
 @router.post("/projects/{project_id}/images/reorder")

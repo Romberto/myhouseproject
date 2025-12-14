@@ -29,7 +29,7 @@ class BlogImage(Base):
     blog_id = Column(
         Integer, ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False
     )
-    link_to_disk = Column(String, nullable=False)
+    path_to_file = Column(String, nullable=False)
     public_url = Column(String, nullable=False)
     is_preview = Column(Boolean, default=False)  # 👈 Новый флаг
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())

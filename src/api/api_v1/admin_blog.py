@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Dict
@@ -15,8 +17,9 @@ from src.crud.blog import (
     delete_blog_image,
     blog_image_is_preview,
 )
+from src.servises.storage import s3, delete_file_storage
 
-from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead
+from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead, StorageBlog
 
 router = APIRouter(
     dependencies=[Depends(require_admin)],
@@ -57,7 +60,13 @@ async def admin_delete_blog(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
         )
-
+    for image in blog.images:
+        remove_storage_file = await delete_file_storage(image.path_to_file)
+        if not remove_storage_file:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete image",
+            )
     success = await delete_blog(db, blog_id)
     if not success:
         raise HTTPException(
@@ -96,13 +105,20 @@ async def admin_delete_blog_image(
             status_code=status.HTTP_404_NOT_FOUND, detail="BlogImage not found"
         )
 
-    success = await delete_blog_image(db, image_id)
-    if not success:
+    remove_storage_file = await delete_file_storage(image.path_to_file)
+    if remove_storage_file:
+        success = await delete_blog_image(db, image_id)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete image",
+            )
+        return {"message": "Image deleted successfully"}
+    else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete image",
         )
-    return {"message": "BlogImage deleted successfully"}
 
 
 @router.post("/blogs/{blog_id}/images/ispreview/{image_id}")
@@ -116,3 +132,27 @@ async def admin_blog_image_is_preview(
         )
     await blog_image_is_preview(db, image_id, blog_id)
     return {"message": "BlogImages is_preview successfully"}
+
+
+@router.post("/blog/storage/presign")
+async def get_presign_project_url(data: StorageBlog):
+    file_path = f"blogs/{data.slug}/{uuid4()}.webp"
+
+    upload_url = s3.generate_presigned_url(
+        "put_object",
+        Params={
+            "Bucket": settings.storage.bucket,
+            "Key": file_path,
+            "ContentType": data.content_type,
+            "ACL": "public-read",
+        },
+        ExpiresIn=300,
+    )
+
+    public_url = f"https://s3.twcstorage.ru/{settings.storage.bucket}/{file_path}"
+
+    return {
+        "upload_url": upload_url,
+        "file_path": file_path,
+        "public_url": public_url,
+    }
