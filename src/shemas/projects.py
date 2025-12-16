@@ -11,7 +11,7 @@ class ImageRead(BaseModel):
     path_to_file: str
     public_url: str
     is_preview: bool
-    is_plan : bool
+    is_plan: bool
     is_gallery: bool
     uploaded_at: datetime
 
@@ -38,9 +38,9 @@ class ProjectBase(BaseModel):
 
 class ProjectCreate(ProjectBase):
     shot_description: str
-    quadrature :int
-    floors:int = 1
-    bedrooms:int = 1
+    quadrature: int
+    floors: int = 1
+    bedrooms: int = 1
 
 
 class ImageCreate(BaseModel):
@@ -53,7 +53,10 @@ class ProjectUpdate(BaseModel):
     slug: Optional[str] = None
     description: Optional[str] = None
     is_published: Optional[bool] = None
-    preview_image_id: Optional[int] = None
+    shot_description: str
+    quadrature: int
+    floors: int = 1
+    bedrooms: int = 1
 
 
 class ProjectRead(ProjectBase):
@@ -62,10 +65,9 @@ class ProjectRead(ProjectBase):
     updated_at: datetime
     images: List[ImageRead] = []
     shot_description: str
-    quadrature :int
-    floors:int
-    bedrooms:int
-
+    quadrature: int
+    floors: int
+    bedrooms: int
 
     class Config:
         from_attributes = True

@@ -70,9 +70,7 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_projects")),
     )
-    op.create_index(
-        op.f("ix_projects_slug"), "projects", ["slug"], unique=True
-    )
+    op.create_index(op.f("ix_projects_slug"), "projects", ["slug"], unique=True)
     op.create_table(
         "blog_images",
         sa.Column("blog_id", sa.UUID(), nullable=False),

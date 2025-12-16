@@ -11,7 +11,7 @@ class BlogImageRead(BaseModel):
     path_to_file: str
     public_url: str
     is_preview: bool
-    shot_description:str
+    shot_description: str
     uploaded_at: datetime
 
     class Config:
@@ -23,13 +23,11 @@ class BlogImageUpdate(BaseModel):
     ordering: Optional[int] = None
 
 
-
 class BlogBase(BaseModel):
     title: str
     slug: str
     description: Optional[str] = None
     is_published: bool = False
-
 
 
 class BlogCreate(BlogBase):
@@ -53,6 +51,7 @@ class BlogUpdate(BaseModel):
     description: Optional[str] = None
     is_published: Optional[bool] = None
     shot_description: Optional[str] = None
+
 
 class StorageBlog(BaseModel):
     slug: str

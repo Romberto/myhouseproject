@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, UUID
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Text,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    UUID,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.core.models.base import Base
@@ -6,7 +15,6 @@ from src.core.models.base import Base
 
 class Blog(Base):
     __tablename__ = "blogs"
-
 
     title = Column(String, nullable=False)
     slug = Column(String, unique=True, nullable=False, index=True)
@@ -26,9 +34,7 @@ class Blog(Base):
 class BlogImage(Base):
     __tablename__ = "blog_images"
 
-    blog_id = Column(
-        UUID, ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False
-    )
+    blog_id = Column(UUID, ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False)
     path_to_file = Column(String, nullable=False)
     public_url = Column(String, nullable=False)
     is_preview = Column(Boolean, default=False)  # 👈 Новый флаг

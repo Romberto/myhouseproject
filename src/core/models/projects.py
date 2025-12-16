@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, UUID
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Text,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    UUID,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -35,7 +44,7 @@ class Image(Base):
     path_to_file = Column(String, nullable=False)
     public_url = Column(String, nullable=False)
     is_preview = Column(Boolean, default=False)
-    is_plan = Column(Boolean,default=False)
-    is_gallery = Column(Boolean,default=True)
+    is_plan = Column(Boolean, default=False)
+    is_gallery = Column(Boolean, default=True)
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     project = relationship("Project", back_populates="images")

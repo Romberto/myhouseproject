@@ -128,7 +128,9 @@ async def admin_upload_image(
 
 @router.delete("/projects/{project_id}/images/{image_id}")
 async def admin_delete_image(
-    project_id: uuid.UUID, image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
+    project_id: uuid.UUID,
+    image_id: uuid.UUID,
+    db: AsyncSession = Depends(db_helper.session_getter),
 ):
     image = await get_image(db, image_id)
     if not image or image.project_id != project_id:
@@ -168,7 +170,9 @@ async def admin_reorder_images(
 
 @router.post("/projects/{project_id}/images/ispreview/{image_id}")
 async def admin_image_is_preview(
-    project_id: uuid.UUID, image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
+    project_id: uuid.UUID,
+    image_id: uuid.UUID,
+    db: AsyncSession = Depends(db_helper.session_getter),
 ):
     project = await get_project(db, project_id)
     if not project:

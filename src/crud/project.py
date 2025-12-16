@@ -120,7 +120,9 @@ async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     return True
 
 
-async def image_is_preview(db: AsyncSession, image_id: uuid.UUID, project_id: uuid.UUID) -> bool:
+async def image_is_preview(
+    db: AsyncSession, image_id: uuid.UUID, project_id: uuid.UUID
+) -> bool:
     # Проверяем, что изображение принадлежит проекту
     q = select(Image).where(Image.id == image_id, Image.project_id == project_id)
     result = await db.execute(q)
