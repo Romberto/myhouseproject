@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
@@ -9,7 +10,7 @@ from typing import List, Optional
 from starlette import status
 
 from src.core.models.projects import Project, Image
-from src.shemas.projects import ProjectCreate, ProjectUpdate
+from src.shemas.projects import ProjectCreate, ProjectUpdate, ImageCreate
 
 
 async def create_project(db: AsyncSession, project_data: ProjectCreate) -> Project:
@@ -86,16 +87,18 @@ async def delete_project(db: AsyncSession, project_id: uuid.UUID) -> bool:
 async def add_image_to_project(
     db: AsyncSession,
     project_id: uuid.UUID,
-    path_to_file: str,
-    public_url: str,
+    image: ImageCreate
 ) -> Image:
     image = Image(
         project_id=project_id,
-        path_to_file=path_to_file,
-        public_url=public_url,
+        path_to_file=image.path_to_file,
+        public_url=image.public_url,
+        is_preview = image.is_preview,
+        is_plan = image.is_plan,
+        is_gallery= image.is_gallery
     )
     db.add(image)
-    await db.commit()
+    await db.flush()
     await db.refresh(image)
     return image
 
@@ -114,10 +117,32 @@ async def delete_image(db: AsyncSession, image_id: uuid.UUID) -> bool:
 async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     for image_id, ordering in image_orders.items():
         await db.execute(
-            update(Image).where(Image.id == int(image_id)).values(ordering=ordering)
+            update(Image).where(Image.id == uuid.UUID(image_id)).values(ordering=ordering)
         )
     await db.commit()
     return True
+
+async def reset_project_previews(
+    db: AsyncSession,
+    project_id: uuid.UUID,
+) -> None:
+    """
+    Сбрасывает флаг is_preview у всех изображений проекта
+    """
+
+    try:
+        result = await db.execute(
+            update(Image)
+            .where(Image.project_id == project_id)
+            .values(is_preview=False)
+        )
+        await db.commit()
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error while resetting previews",
+        ) from exc
 
 
 async def image_is_preview(
@@ -134,15 +159,16 @@ async def image_is_preview(
             detail="Image not found for this project",
         )
 
-    # 1. Сбрасываем у всех изображений проекта is_preview = False
+    # 1. Сбрасываем preview у всех картинок проекта
+    await reset_project_previews(db, project_id)
+    # 2. Ставим preview нужной картинке
     await db.execute(
-        update(Image).where(Image.project_id == project_id).values(is_preview=False)
-    )
+        update(Image)
+        .where(Image.id == image_id)
+        .values(is_preview=True)
+        )
 
-    # 2. Устанавливаем превью для выбранного изображения
-    await db.execute(update(Image).where(Image.id == image_id).values(is_preview=True))
-
-    # Применяем изменения
     await db.commit()
+
 
     return True

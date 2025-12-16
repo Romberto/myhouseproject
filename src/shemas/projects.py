@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -15,8 +15,7 @@ class ImageRead(BaseModel):
     is_gallery: bool
     uploaded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ImageUpdate(BaseModel):
@@ -46,6 +45,9 @@ class ProjectCreate(ProjectBase):
 class ImageCreate(BaseModel):
     path_to_file: str
     public_url: str
+    is_preview: Optional[bool] = False
+    is_plan : Optional[bool] = False
+    is_gallery :Optional[bool] = True
 
 
 class ProjectUpdate(BaseModel):
@@ -53,10 +55,10 @@ class ProjectUpdate(BaseModel):
     slug: Optional[str] = None
     description: Optional[str] = None
     is_published: Optional[bool] = None
-    shot_description: str
-    quadrature: int
-    floors: int = 1
-    bedrooms: int = 1
+    shot_description:Optional[str] = None
+    quadrature: Optional[int] = None
+    floors: Optional[int] = None
+    bedrooms: Optional[int] = None
 
 
 class ProjectRead(ProjectBase):
@@ -69,8 +71,7 @@ class ProjectRead(ProjectBase):
     floors: int
     bedrooms: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TelegramAuthData(BaseModel):

@@ -44,6 +44,7 @@ class AuthCredentials(BaseModel):
 
 class DataBaseConfig(BaseModel):
     url: PostgresDsn
+    test_url: PostgresDsn
     echo: bool = False
     echo_pool: bool = False
     max_overflow: int = 10

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: em_test_db
+    restart: always
+    ports:
+      - "5441:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: general
+      POSTGRES_PASSWORD: testecret
+      POSTGRES_DB: test_db
+
+volumes:
+  postgres_data:

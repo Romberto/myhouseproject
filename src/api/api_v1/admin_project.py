@@ -121,7 +121,7 @@ async def admin_upload_image(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
     image = await add_image_to_project(
-        db, project_id, payload.path_to_file, payload.public_url
+        db, project_id, payload
     )
     return image
 
