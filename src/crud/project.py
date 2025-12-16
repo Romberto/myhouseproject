@@ -98,7 +98,7 @@ async def add_image_to_project(
         is_gallery= image.is_gallery
     )
     db.add(image)
-    await db.flush()
+    await db.commit()
     await db.refresh(image)
     return image
 
