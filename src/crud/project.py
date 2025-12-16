@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
@@ -24,7 +26,7 @@ async def create_project(db: AsyncSession, project_data: ProjectCreate) -> Proje
     return result.scalar_one()
 
 
-async def get_project(db: AsyncSession, project_id: int) -> Optional[Project]:
+async def get_project(db: AsyncSession, project_id: uuid.UUID) -> Optional[Project]:
     result = await db.execute(
         select(Project)
         .options(selectinload(Project.images))
@@ -64,7 +66,7 @@ async def list_projects(
 
 
 async def update_project(
-    db: AsyncSession, project_id: int, project_data: ProjectUpdate
+    db: AsyncSession, project_id: uuid.UUID, project_data: ProjectUpdate
 ) -> Optional[Project]:
     update_data = project_data.model_dump(exclude_unset=True)
     if update_data:
@@ -75,7 +77,7 @@ async def update_project(
     return await get_project(db, project_id)
 
 
-async def delete_project(db: AsyncSession, project_id: int) -> bool:
+async def delete_project(db: AsyncSession, project_id: uuid.UUID) -> bool:
     result = await db.execute(delete(Project).where(Project.id == project_id))
     await db.commit()
     return result.rowcount > 0
@@ -83,7 +85,7 @@ async def delete_project(db: AsyncSession, project_id: int) -> bool:
 
 async def add_image_to_project(
     db: AsyncSession,
-    project_id: int,
+    project_id: uuid.UUID,
     path_to_file: str,
     public_url: str,
 ) -> Image:
@@ -98,12 +100,12 @@ async def add_image_to_project(
     return image
 
 
-async def get_image(db: AsyncSession, image_id: int) -> Optional[Image]:
+async def get_image(db: AsyncSession, image_id: uuid.UUID) -> Optional[Image]:
     result = await db.execute(select(Image).where(Image.id == image_id))
     return result.scalar_one_or_none()
 
 
-async def delete_image(db: AsyncSession, image_id: int) -> bool:
+async def delete_image(db: AsyncSession, image_id: uuid.UUID) -> bool:
     result = await db.execute(delete(Image).where(Image.id == image_id))
     await db.commit()
     return result.rowcount > 0
@@ -118,7 +120,7 @@ async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     return True
 
 
-async def image_is_preview(db: AsyncSession, image_id: int, project_id) -> bool:
+async def image_is_preview(db: AsyncSession, image_id: uuid.UUID, project_id: uuid.UUID) -> bool:
     # Проверяем, что изображение принадлежит проекту
     q = select(Image).where(Image.id == image_id, Image.project_id == project_id)
     result = await db.execute(q)

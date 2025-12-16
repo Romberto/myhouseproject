@@ -1,3 +1,4 @@
+import uuid
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
@@ -46,7 +47,7 @@ async def admin_create_project(
 
 @router.put("/projects/{project_id}", response_model=ProjectRead)
 async def admin_update_project(
-    project_id: int,
+    project_id: uuid.UUID,
     project: ProjectUpdate,
     db: AsyncSession = Depends(db_helper.session_getter),
 ):
@@ -61,7 +62,7 @@ async def admin_update_project(
 
 @router.delete("/projects/{project_id}")
 async def admin_delete_project(
-    project_id: int, db: AsyncSession = Depends(db_helper.session_getter)
+    project_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     project = await get_project(db, project_id)
     if not project:
@@ -110,7 +111,7 @@ async def get_presign_project_url(data: StorageProject):
 
 @router.post("/projects/{project_id}/images", response_model=ImageRead)
 async def admin_upload_image(
-    project_id: int,
+    project_id: uuid.UUID,
     payload: ImageCreate,
     db: AsyncSession = Depends(db_helper.session_getter),
 ):
@@ -127,7 +128,7 @@ async def admin_upload_image(
 
 @router.delete("/projects/{project_id}/images/{image_id}")
 async def admin_delete_image(
-    project_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
+    project_id: uuid.UUID, image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     image = await get_image(db, image_id)
     if not image or image.project_id != project_id:
@@ -152,7 +153,7 @@ async def admin_delete_image(
 
 @router.post("/projects/{project_id}/images/reorder")
 async def admin_reorder_images(
-    project_id: int,
+    project_id: uuid.UUID,
     image_orders: Dict[int, int],
     db: AsyncSession = Depends(db_helper.session_getter),
 ):
@@ -167,7 +168,7 @@ async def admin_reorder_images(
 
 @router.post("/projects/{project_id}/images/ispreview/{image_id}")
 async def admin_image_is_preview(
-    project_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
+    project_id: uuid.UUID, image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     project = await get_project(db, project_id)
     if not project:

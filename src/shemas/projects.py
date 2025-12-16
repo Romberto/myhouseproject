@@ -1,14 +1,18 @@
+import uuid
+
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 
 
 class ImageRead(BaseModel):
-    id: int
-    project_id: int
+    id: uuid.UUID
+    project_id: uuid.UUID
     path_to_file: str
     public_url: str
     is_preview: bool
+    is_plan : bool
+    is_gallery: bool
     uploaded_at: datetime
 
     class Config:
@@ -33,7 +37,10 @@ class ProjectBase(BaseModel):
 
 
 class ProjectCreate(ProjectBase):
-    pass
+    shot_description: str
+    quadrature :int
+    floors:int = 1
+    bedrooms:int = 1
 
 
 class ImageCreate(BaseModel):
@@ -50,17 +57,22 @@ class ProjectUpdate(BaseModel):
 
 
 class ProjectRead(ProjectBase):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     updated_at: datetime
     images: List[ImageRead] = []
+    shot_description: str
+    quadrature :int
+    floors:int
+    bedrooms:int
+
 
     class Config:
         from_attributes = True
 
 
 class TelegramAuthData(BaseModel):
-    id: int
+    id: uuid.UUID
     first_name: str
     username: Optional[str] = None
     photo_url: Optional[str] = None
