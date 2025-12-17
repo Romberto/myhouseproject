@@ -165,7 +165,7 @@ async def image_is_preview(
     await db.execute(
         update(Image)
         .where(Image.id == image_id)
-        .values(is_preview=True)
+        .values(is_preview=True, is_gallegy=False)
         )
 
     await db.commit()
