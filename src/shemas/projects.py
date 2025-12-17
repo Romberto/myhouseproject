@@ -46,8 +46,8 @@ class ImageCreate(BaseModel):
     path_to_file: str
     public_url: str
     is_preview: Optional[bool] = False
-    is_plan : Optional[bool] = False
-    is_gallery :Optional[bool] = True
+    is_plan: Optional[bool] = False
+    is_gallery: Optional[bool] = True
 
 
 class ProjectUpdate(BaseModel):
@@ -55,7 +55,7 @@ class ProjectUpdate(BaseModel):
     slug: Optional[str] = None
     description: Optional[str] = None
     is_published: Optional[bool] = None
-    shot_description:Optional[str] = None
+    shot_description: Optional[str] = None
     quadrature: Optional[int] = None
     floors: Optional[int] = None
     bedrooms: Optional[int] = None

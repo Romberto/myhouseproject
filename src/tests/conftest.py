@@ -33,11 +33,13 @@ async def engine():
 
     await engine.dispose()
 
+
 @pytest.fixture(scope="function")
 async def session(engine):
     async_session = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session() as session:
         yield session
+
 
 @pytest.fixture(scope="function")
 async def project(session):
@@ -48,9 +50,10 @@ async def project(session):
             slug="slug-test",
             shot_description="desc",
             quadrature=100,
-            ),
-        )
+        ),
+    )
     return project
+
 
 @pytest.fixture(scope="function")
 async def images(session, project):
@@ -60,14 +63,14 @@ async def images(session, project):
         is_preview=False,
         is_plan=False,
         is_gallery=True,
-        )
+    )
     image_data2 = ImageCreate(
         path_to_file="img2.jpg",
         public_url="http://img",
         is_preview=False,
         is_plan=False,
         is_gallery=True,
-        )
+    )
     img1 = await add_image_to_project(session, project.id, image_data1)
     img2 = await add_image_to_project(session, project.id, image_data2)
 

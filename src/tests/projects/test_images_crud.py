@@ -1,6 +1,11 @@
 import pytest
 
-from src.crud.project import add_image_to_project, create_project, image_is_preview, get_project
+from src.crud.project import (
+    add_image_to_project,
+    create_project,
+    image_is_preview,
+    get_project,
+)
 from src.shemas.projects import ImageCreate, ProjectCreate
 
 
@@ -12,18 +17,14 @@ async def test_add_image(session, project):
         is_preview=False,
         is_plan=False,
         is_gallery=True,
-        )
-    image = await add_image_to_project(
-        session,
-        project.id,
-        image_data
     )
+    image = await add_image_to_project(session, project.id, image_data)
 
     assert image.project_id == project.id
 
 
 @pytest.mark.asyncio
-async def test_image_is_preview(session,project, images):
+async def test_image_is_preview(session, project, images):
 
     img1, img2 = images
 

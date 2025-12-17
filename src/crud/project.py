@@ -85,17 +85,15 @@ async def delete_project(db: AsyncSession, project_id: uuid.UUID) -> bool:
 
 
 async def add_image_to_project(
-    db: AsyncSession,
-    project_id: uuid.UUID,
-    image: ImageCreate
+    db: AsyncSession, project_id: uuid.UUID, image: ImageCreate
 ) -> Image:
     image = Image(
         project_id=project_id,
         path_to_file=image.path_to_file,
         public_url=image.public_url,
-        is_preview = image.is_preview,
-        is_plan = image.is_plan,
-        is_gallery= image.is_gallery
+        is_preview=image.is_preview,
+        is_plan=image.is_plan,
+        is_gallery=image.is_gallery,
     )
     db.add(image)
     await db.commit()
@@ -117,10 +115,13 @@ async def delete_image(db: AsyncSession, image_id: uuid.UUID) -> bool:
 async def reorder_images(db: AsyncSession, image_orders: dict) -> bool:
     for image_id, ordering in image_orders.items():
         await db.execute(
-            update(Image).where(Image.id == uuid.UUID(image_id)).values(ordering=ordering)
+            update(Image)
+            .where(Image.id == uuid.UUID(image_id))
+            .values(ordering=ordering)
         )
     await db.commit()
     return True
+
 
 async def reset_project_previews(
     db: AsyncSession,
@@ -132,9 +133,7 @@ async def reset_project_previews(
 
     try:
         result = await db.execute(
-            update(Image)
-            .where(Image.project_id == project_id)
-            .values(is_preview=False, is_gallery=True)
+            update(Image).where(Image.project_id == project_id).values(is_preview=False)
         )
         await db.commit()
     except SQLAlchemyError as exc:
@@ -148,6 +147,7 @@ async def reset_project_previews(
 async def image_is_preview(
     db: AsyncSession, image_id: uuid.UUID, project_id: uuid.UUID
 ) -> bool:
+    """ставит статус изображения п положение 'превью'"""
     # Проверяем, что изображение принадлежит проекту
     q = select(Image).where(Image.id == image_id, Image.project_id == project_id)
     result = await db.execute(q)
@@ -158,17 +158,54 @@ async def image_is_preview(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Image not found for this project",
         )
-
     # 1. Сбрасываем preview у всех картинок проекта
-    await reset_project_previews(db, project_id)
-    # 2. Ставим preview нужной картинке
-    await db.execute(
-        update(Image)
-        .where(Image.id == image_id)
-        .values(is_preview=True, is_gallery=False)
+    try:
+        # 1. Сбрасываем preview у всех картинок проекта
+        await reset_project_previews(db, project_id)
+        # 2. Ставим preview нужной картинке
+        await db.execute(
+            update(Image)
+            .where(Image.id == image_id)
+            .values(
+                is_preview=True,
+                is_gallery=False,
+                is_plan=False,
+            )
+        )
+        await db.commit()
+        return True
+    except SQLAlchemyError:
+        await db.rollback()
+        return False
+
+
+async def image_to_gallery(db: AsyncSession, image_id: uuid.UUID) -> bool:
+    """Ставит статус изображения в положение 'галлерея'"""
+    try:
+        await db.execute(
+            update(Image)
+            .where(Image.id == image_id)
+            .values(is_preview=False, is_gallery=True, is_plan=False)
         )
 
-    await db.commit()
+        await db.commit()
+        return True
+    except SQLAlchemyError:
+        await db.rollback()
+        return False
 
 
-    return True
+async def image_to_plan(db: AsyncSession, image_id: uuid.UUID) -> bool:
+    """Ставит статус изображения в положение 'план'"""
+    try:
+        await db.execute(
+            update(Image)
+            .where(Image.id == image_id)
+            .values(is_preview=False, is_gallery=False, is_plan=True)
+        )
+
+        await db.commit()
+        return True
+    except SQLAlchemyError:
+        await db.rollback()
+        return False

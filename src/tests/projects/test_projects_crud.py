@@ -1,6 +1,12 @@
 import pytest
 
-from src.crud.project import create_project, get_project_by_slug, update_project, delete_project, get_project
+from src.crud.project import (
+    create_project,
+    get_project_by_slug,
+    update_project,
+    delete_project,
+    get_project,
+)
 from src.shemas.projects import ProjectCreate, ProjectUpdate
 
 
@@ -20,6 +26,7 @@ async def test_create_project(session):
     assert project.id is not None
     assert project.slug == "test-house12"
     assert project.images == []
+
 
 @pytest.mark.asyncio
 async def test_get_project_by_slug(session):
@@ -46,7 +53,6 @@ async def test_update_project_partial(session):
             slug="old",
             shot_description="desc",
             quadrature=80,
-
         ),
     )
 

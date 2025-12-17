@@ -18,6 +18,8 @@ from src.crud.project import (
     delete_image,
     reorder_images,
     image_is_preview,
+    image_to_plan,
+    image_to_gallery,
 )
 from src.servises.storage import s3, delete_file_storage
 
@@ -120,9 +122,7 @@ async def admin_upload_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    image = await add_image_to_project(
-        db, project_id, payload
-    )
+    image = await add_image_to_project(db, project_id, payload)
     return image
 
 
@@ -179,5 +179,27 @@ async def admin_image_is_preview(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    await image_is_preview(db, image_id, project_id)
+    result = await image_is_preview(db, image_id, project_id)
+    if not result:
+        return {"message": "Images is_preview NOT is successfully DATABASE ERROR"}
     return {"message": "Images is_preview successfully"}
+
+
+@router.post("/projects/images/isplan/{image_id}")
+async def admin_image_is_plan(
+    image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
+):
+    result = await image_to_plan(db=db, image_id=image_id)
+    if not result:
+        return {"message": "Images is_plan NOT is successfully DATABASE ERROR"}
+    return {"message": "Images is_plan successfully"}
+
+
+@router.post("/projects/images/isgallery/{image_id}")
+async def admin_image_is_gallery(
+    image_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
+):
+    result = await image_to_gallery(db=db, image_id=image_id)
+    if not result:
+        return {"message": "Images is_gallery NOT is successfully DATABASE ERROR"}
+    return {"message": "Images is_gallery successfully"}
