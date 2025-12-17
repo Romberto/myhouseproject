@@ -134,7 +134,7 @@ async def reset_project_previews(
         result = await db.execute(
             update(Image)
             .where(Image.project_id == project_id)
-            .values(is_preview=False)
+            .values(is_preview=False, is_gallery=True)
         )
         await db.commit()
     except SQLAlchemyError as exc:
