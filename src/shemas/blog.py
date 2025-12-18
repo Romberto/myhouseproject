@@ -2,7 +2,9 @@ import uuid
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from src.core.models.blog import BlogCategory
 
 
 class BlogImageRead(BaseModel):
@@ -26,23 +28,25 @@ class BlogImageUpdate(BaseModel):
 class BlogBase(BaseModel):
     title: str
     slug: str
-    description: Optional[str] = None
-    is_published: bool = False
+    category: Optional[str] = None
+    category: BlogCategory
+
 
 
 class BlogCreate(BlogBase):
-    shot_description: str
-
+    article: str
+    excerpt: str
 
 class BlogRead(BlogBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
-    images: List[BlogImageRead] = []
-    shot_description: str
+    article: str
+    excerpt: str
+    path_to_file: Optional[str] = None
+    public_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BlogUpdate(BaseModel):
@@ -53,6 +57,4 @@ class BlogUpdate(BaseModel):
     shot_description: Optional[str] = None
 
 
-class StorageBlog(BaseModel):
-    slug: str
-    content_type: str
+

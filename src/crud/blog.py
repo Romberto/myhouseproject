@@ -15,14 +15,8 @@ async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
     blog = Blog(**blog_data.model_dump())
     db.add(blog)
     await db.commit()
-
-    stmt = (
-        select(Blog)
-        .options(selectinload(Blog.images))  # 👈 Загрузка связанных изображений
-        .where(Blog.id == blog.id)
-    )
-    result = await db.execute(stmt)
-    return result.scalar_one()
+    await db.refresh(blog)
+    return blog
 
 
 async def get_blog_by_id(db: AsyncSession, blog_id: UUID) -> Optional[Blog]:

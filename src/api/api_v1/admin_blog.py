@@ -16,8 +16,8 @@ from src.crud.blog import (
 )
 from src.servises.storage import s3, delete_file_storage
 
-from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageRead, StorageBlog
-from src.shemas.projects import ImageCreate
+from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate
+
 
 router = APIRouter(
     dependencies=[Depends(require_admin)],

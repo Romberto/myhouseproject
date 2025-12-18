@@ -33,8 +33,8 @@ class Blog(Base):
     )
     article = Column(Text, nullable=True)
     excerpt = Column(Text, nullable=True)
-    path_to_file = Column(String, nullable=False)
-    public_url = Column(String, nullable=False)
+    path_to_file = Column(String, nullable=True)
+    public_url = Column(String, nullable=True)
     is_published = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
