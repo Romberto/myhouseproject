@@ -5,12 +5,18 @@ from sqlalchemy import (
     Text,
     Boolean,
     DateTime,
-    ForeignKey,
-    UUID,
+    Enum,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.core.models.base import Base
+import enum
+
+
+class BlogCategory(enum.Enum):
+    tips = "Советы"
+    analytics = "Аналитика"
+    technologies = "Технологии"
 
 
 class Blog(Base):
@@ -18,26 +24,19 @@ class Blog(Base):
 
     title = Column(String, nullable=False)
     slug = Column(String, unique=True, nullable=False, index=True)
-    description = Column(Text, nullable=True)
-    shot_description = Column(Text, nullable=True)
+    category = Column(
+        Enum(
+            BlogCategory,
+            name="blog_category_enum",  # имя ENUM в БД
+        ),
+        nullable=False,
+    )
+    article = Column(Text, nullable=True)
+    excerpt = Column(Text, nullable=True)
+    path_to_file = Column(String, nullable=False)
+    public_url = Column(String, nullable=False)
     is_published = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
-
-    # images = relationship(
-    #     "BlogImage", back_populates="project", cascade="all, delete-orphan"
-    # )
-
-
-class BlogImage(Base):
-    __tablename__ = "blog_images"
-
-    blog_id = Column(UUID, ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False)
-    path_to_file = Column(String, nullable=False)
-    public_url = Column(String, nullable=False)
-    is_preview = Column(Boolean, default=False)  # 👈 Новый флаг
-    uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    # project = relationship("Blog", back_populates="images")

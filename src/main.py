@@ -23,7 +23,7 @@ origins = [
     "http://localhost:5173",  # твой фронтенд
     "http://127.0.0.1:5173",  # иногда нужно
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
 ]
 
 main_app.add_middleware(
