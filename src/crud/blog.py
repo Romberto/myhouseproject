@@ -1,4 +1,5 @@
 from typing import Optional, List
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select, update, delete
@@ -6,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
 
-from src.core.models.blog import Blog, BlogImage
+from src.core.models.blog import Blog
 from src.shemas.blog import BlogCreate, BlogUpdate
 
 
@@ -24,7 +25,7 @@ async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
     return result.scalar_one()
 
 
-async def get_blog_by_id(db: AsyncSession, blog_id: int) -> Optional[Blog]:
+async def get_blog_by_id(db: AsyncSession, blog_id: UUID) -> Optional[Blog]:
     result = await db.execute(
         select(Blog).options(selectinload(Blog.images)).where(Blog.id == blog_id)
     )
@@ -45,7 +46,7 @@ async def list_blogs(
     search: Optional[str] = None,
     only_published: bool = False,
 ) -> List[Blog]:
-    query = select(Blog).options(selectinload(Blog.images))
+    query = select(Blog)
 
     if only_published:
         query = query.where(Blog.is_published == True)
@@ -60,7 +61,7 @@ async def list_blogs(
 
 
 async def update_blog(
-    db: AsyncSession, blog_id: int, blog_data: BlogUpdate
+    db: AsyncSession, blog_id: UUID, blog_data: BlogUpdate
 ) -> Optional[Blog]:
     update_data = blog_data.model_dump(exclude_unset=True)
     if update_data:
@@ -69,63 +70,10 @@ async def update_blog(
     return await get_blog_by_id(db, blog_id)
 
 
-async def delete_blog(db: AsyncSession, blog_id: int) -> bool:
+async def delete_blog(db: AsyncSession, blog_id: UUID) -> bool:
     result = await db.execute(delete(Blog).where(Blog.id == blog_id))
     await db.commit()
     return result.rowcount > 0
 
 
-async def add_image_to_blog(
-    db: AsyncSession,
-    blog_id: int,
-    path_to_file: str,
-    public_url: str,
-) -> BlogImage:
-    image = BlogImage(
-        blog_id=blog_id,
-        path_to_file=path_to_file,
-        public_url=public_url,
-    )
-    db.add(image)
-    await db.commit()
-    await db.refresh(image)
-    return image
 
-
-async def get_blog_image(db: AsyncSession, image_id: int) -> Optional[BlogImage]:
-    result = await db.execute(select(BlogImage).where(BlogImage.id == image_id))
-    return result.scalar_one_or_none()
-
-
-async def delete_blog_image(db: AsyncSession, image_id: int) -> bool:
-    result = await db.execute(delete(BlogImage).where(BlogImage.id == image_id))
-    await db.commit()
-    return result.rowcount > 0
-
-
-async def blog_image_is_preview(db: AsyncSession, image_id: int, blog_id) -> bool:
-    # Проверяем, что изображение принадлежит проекту
-    q = select(BlogImage).where(BlogImage.id == image_id, BlogImage.blog_id == blog_id)
-    result = await db.execute(q)
-    image = result.scalar_one_or_none()
-
-    if image is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Image not found for this blog",
-        )
-
-    # 1. Сбрасываем у всех изображений проекта is_preview = False
-    await db.execute(
-        update(BlogImage).where(BlogImage.blog_id == blog_id).values(is_preview=False)
-    )
-
-    # 2. Устанавливаем превью для выбранного изображения
-    await db.execute(
-        update(BlogImage).where(BlogImage.id == image_id).values(is_preview=True)
-    )
-
-    # Применяем изменения
-    await db.commit()
-
-    return True

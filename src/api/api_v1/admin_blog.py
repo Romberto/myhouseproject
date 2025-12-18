@@ -12,10 +12,7 @@ from src.crud.blog import (
     get_blog_by_id,
     update_blog,
     delete_blog,
-    add_image_to_blog,
-    get_blog_image,
-    delete_blog_image,
-    blog_image_is_preview,
+
 )
 from src.servises.storage import s3, delete_file_storage
 
@@ -77,82 +74,21 @@ async def admin_delete_blog(
     return {"message": "Blog deleted successfully"}
 
 
-@router.post("/blogs/{blog_id}/images", response_model=BlogImageRead)
-async def admin_upload_image(
-    blog_id: int,
-    payload: ImageCreate,
-    db: AsyncSession = Depends(db_helper.session_getter),
-):
-    blog = await get_blog_by_id(db, blog_id)
-    if not blog:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
-        )
-    path_to_file = payload.path_to_file
-    public_url = payload.public_url
-    image = await add_image_to_blog(db, blog_id, path_to_file, public_url)
+# @router.post("/blogs/{blog_id}/images", response_model=BlogImageRead)
+# async def admin_upload_image(
+#     blog_id: int,
+#     payload: ImageCreate,
+#     db: AsyncSession = Depends(db_helper.session_getter),
+# ):
+#     blog = await get_blog_by_id(db, blog_id)
+#     if not blog:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+#         )
+#     path_to_file = payload.path_to_file
+#     public_url = payload.public_url
+#     image = await add_image_to_blog(db, blog_id, path_to_file, public_url)
+#
+#     return image
+#
 
-    return image
-
-
-@router.delete("/blogs/{blog_id}/images/{image_id}")
-async def admin_delete_blog_image(
-    blog_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
-):
-    image = await get_blog_image(db, image_id)
-    if not image or image.blog_id != blog_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="BlogImage not found"
-        )
-
-    remove_storage_file = await delete_file_storage(image.path_to_file)
-    if remove_storage_file:
-        success = await delete_blog_image(db, image_id)
-        if not success:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete image",
-            )
-        return {"message": "Image deleted successfully"}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete image",
-        )
-
-
-@router.post("/blogs/{blog_id}/images/ispreview/{image_id}")
-async def admin_blog_image_is_preview(
-    blog_id: int, image_id: int, db: AsyncSession = Depends(db_helper.session_getter)
-):
-    project = await get_blog_image(db, blog_id)
-    if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
-        )
-    await blog_image_is_preview(db, image_id, blog_id)
-    return {"message": "BlogImages is_preview successfully"}
-
-
-@router.post("/blog/storage/presign")
-async def get_presign_project_url(data: StorageBlog):
-    file_path = f"blogs/{data.slug}/{uuid4()}.webp"
-
-    upload_url = s3.generate_presigned_url(
-        "put_object",
-        Params={
-            "Bucket": settings.storage.bucket,
-            "Key": file_path,
-            "ContentType": data.content_type,
-            "ACL": "public-read",
-        },
-        ExpiresIn=300,
-    )
-
-    public_url = f"https://s3.twcstorage.ru/{settings.storage.bucket}/{file_path}"
-
-    return {
-        "upload_url": upload_url,
-        "file_path": file_path,
-        "public_url": public_url,
-    }
