@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
+from src.config import settings
 from src.core.security.jwt import decode_access_token, is_admin
 
 security = HTTPBearer(auto_error=False)
@@ -29,8 +30,8 @@ async def require_admin(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
         )
-    user_id = current_user.get("id")
-    if not user_id:
+    user_id = current_user.get("user_id")
+    if str(user_id) != str(settings.admin.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )
