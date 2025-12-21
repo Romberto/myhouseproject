@@ -29,8 +29,8 @@ async def require_admin(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
         )
-    user_id = current_user.get("user_id")
-    if not user_id or not is_admin(user_id):
+    user_id = current_user.get("id")
+    if not user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )

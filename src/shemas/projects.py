@@ -75,7 +75,7 @@ class ProjectRead(ProjectBase):
 
 
 class TelegramAuthData(BaseModel):
-    id: uuid.UUID
+    id: int
     first_name: str
     username: Optional[str] = None
     photo_url: Optional[str] = None
@@ -90,4 +90,5 @@ class PassLoginRequest(BaseModel):
 
 class AuthResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
