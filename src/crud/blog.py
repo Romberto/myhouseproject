@@ -33,6 +33,9 @@ async def get_blog_by_slug(db: AsyncSession, slug: str) -> Optional[Blog]:
     return result.scalar_one_or_none()
 
 
+from sqlalchemy import select, cast, String
+from typing import Optional, List
+
 async def list_blogs(
     db: AsyncSession,
     skip: int = 0,
@@ -46,12 +49,13 @@ async def list_blogs(
         query = query.where(Blog.is_published == True)
 
     if search:
-        query = query.where(Blog.title.ilike(f"%{search}%"))
+        query = query.where(cast(Blog.category, String).ilike(f"%{search}%"))
 
     query = query.offset(skip).limit(limit).order_by(Blog.created_at.desc())
 
     result = await db.execute(query)
     return list(result.scalars().all())
+
 
 
 async def update_blog(
