@@ -20,7 +20,7 @@ async def telegram_login(auth_data: TelegramAuthData):
     user_id = auth_data.id
     token = create_access_token(auth_dict)
     refresh = create_refresh_token(auth_dict)
-    return AuthResponse(access_token=token, user_id=user_id)
+    return AuthResponse(access_token=token)
 
 
 @router.post("/login/password", response_model=AuthResponse)
@@ -41,4 +41,4 @@ async def login_with_password(data: PassLoginRequest):
 
     token = create_access_token({"user_id": user_id, "is_admin": True})
 
-    return AuthResponse(access_token=token, user_id=user_id, is_admin=True)
+    return AuthResponse(access_token=token)
