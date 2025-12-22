@@ -74,21 +74,3 @@ async def admin_delete_blog(
     return {"message": "Blog deleted successfully"}
 
 
-# @router.post("/blogs/{blog_id}/images", response_model=BlogImageRead)
-# async def admin_upload_image(
-#     blog_id: int,
-#     payload: ImageCreate,
-#     db: AsyncSession = Depends(db_helper.session_getter),
-# ):
-#     blog = await get_blog_by_id(db, blog_id)
-#     if not blog:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
-#         )
-#     path_to_file = payload.path_to_file
-#     public_url = payload.public_url
-#     image = await add_image_to_blog(db, blog_id, path_to_file, public_url)
-#
-#     return image
-#
-
