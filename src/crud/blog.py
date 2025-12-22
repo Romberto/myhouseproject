@@ -28,7 +28,7 @@ async def get_blog_by_id(db: AsyncSession, blog_id: UUID) -> Optional[Blog]:
 
 async def get_blog_by_slug(db: AsyncSession, slug: str) -> Optional[Blog]:
     result = await db.execute(
-        select(Blog).options(selectinload(Blog.images)).where(Blog.slug == slug)
+        select(Blog).where(Blog.slug == slug)
     )
     return result.scalar_one_or_none()
 
