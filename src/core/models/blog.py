@@ -14,9 +14,9 @@ import enum
 
 
 class BlogCategory(enum.Enum):
-    tips = "Советы"
-    analytics = "Аналитика"
-    technologies = "Технологии"
+    tips = "tips"
+    analytics = "analytics"
+    technologies = "technologies"
 
 
 class Blog(Base):
