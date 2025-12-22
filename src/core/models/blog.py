@@ -30,6 +30,7 @@ class Blog(Base):
             name="blog_category_enum",  # имя ENUM в БД
         ),
         nullable=False,
+        default=BlogCategory.tips
     )
     article = Column(Text, nullable=True) # статья
     excerpt = Column(Text, nullable=True) # короткое описание
