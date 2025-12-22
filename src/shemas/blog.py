@@ -22,10 +22,10 @@ class BlogCreate(BlogBase):
 
 class BlogRead(BlogBase):
     id: uuid.UUID
+    article: Optional[str]
+    excerpt: Optional[str]
     created_at: datetime
     updated_at: datetime
-    article: str
-    excerpt: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -33,6 +33,8 @@ class BlogRead(BlogBase):
 class BlogUpdate(BaseModel):
     title: Optional[str] = None
     slug: Optional[str] = None
+    article: Optional[str] = None
+    excerpt: Optional[str] = None
 
 
 
