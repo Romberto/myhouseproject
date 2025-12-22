@@ -10,7 +10,7 @@ from src.core.models.blog import BlogCategory
 class BlogBase(BaseModel):
     title: str
     slug: str
-    category: BlogCategory
+    category: Optional[str] = BlogCategory.tips
     path_to_file: Optional[str] = None
     public_url: Optional[str] = None
     is_published: Optional[bool] = None
