@@ -16,8 +16,8 @@ class BlogBase(BaseModel):
     is_published: Optional[bool] = None
 
 class BlogCreate(BlogBase):
-    article: str
-    excerpt: str
+    article: Optional[str] = None
+    excerpt: Optional[str] = None
 
 
 class BlogRead(BlogBase):
