@@ -69,7 +69,7 @@ async def admin_delete_blog(
     return {"message": "Blog deleted successfully"}
 
 
-@router.post("/blog/{project_id}/images", response_model=BlogRead)
+@router.post("/blog/{blog_id}/images", response_model=BlogRead)
 async def admin_upload_blog_image(
     blog_id: uuid.UUID,
     payload: BlogImageUpload,
