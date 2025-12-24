@@ -103,5 +103,12 @@ async  def add_image_to_blog(db: AsyncSession,  blog_id: UUID, payload:BlogImage
     await db.refresh(blog)
     return blog
 
+async def delete_blog_image_to_db(db: AsyncSession, blog_id: UUID):
+    blog = await get_blog_by_id(db, blog_id)
+    path_to_file =  blog.path_to_file
+    blog.path_to_file = None
+    blog.public_url = None
+    await db.commit()
+    return path_to_file
 
 
