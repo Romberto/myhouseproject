@@ -81,7 +81,7 @@ async def admin_upload_blog_image(
 
 
 @router.delete("/blogs/{blog_id}/images")
-async def delete_blog_image(
+async def delete_blog_images(
     blog_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
 ):
     path_to_file = await delete_blog_image_to_db(db, blog_id)
