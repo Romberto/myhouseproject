@@ -25,10 +25,7 @@ class Blog(Base):
     title = Column(String, nullable=False)
     slug = Column(String, unique=True, nullable=False, index=True)
     category = Column(
-        Enum(
-            BlogCategory,
-            name="blog_category_enum",  # имя ENUM в БД
-        ),
+        Enum(BlogCategory, name="blog_category_enum", native_enum=False),
         nullable=False,
         default=BlogCategory.tips,
     )
