@@ -79,9 +79,16 @@ async def update_blog(
 
 
 async def delete_blog(db: AsyncSession, blog_id: UUID) -> bool:
+    blog = await get_blog_by_id(db, blog_id)
+    path_to_file = blog.path_to_file
+    if not blog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
+        )
     result = await db.execute(delete(Blog).where(Blog.id == blog_id))
     await db.commit()
-    return result.rowcount > 0
+    return path_to_file
+
 
 
 async def add_image_to_blog(db: AsyncSession, blog_id: UUID, payload: BlogImageUpload):

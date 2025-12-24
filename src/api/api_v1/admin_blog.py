@@ -47,26 +47,15 @@ async def admin_update_blog(
 
 @router.delete("/blogs/{blog_id}")
 async def admin_delete_blog(
-    blog_id: int, db: AsyncSession = Depends(db_helper.session_getter)
+    blog_id: uuid.UUID, db: AsyncSession = Depends(db_helper.session_getter)
 ):
-    blog = await get_blog_by_id(db, blog_id)
-    if not blog:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
-        )
-    for image in blog.images:
-        remove_storage_file = await delete_file_storage(image.path_to_file)
+    path_to_file = await delete_blog(db, blog_id)
+    if path_to_file:
+        remove_storage_file = await delete_file_storage(path_to_file)
         if not remove_storage_file:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete image",
-            )
-    success = await delete_blog(db, blog_id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete blog",
-        )
+                status_code=status.HTTP_500_NOT_FOUND, detail="BlogImage not remove"
+                )
     return {"message": "Blog deleted successfully"}
 
 
