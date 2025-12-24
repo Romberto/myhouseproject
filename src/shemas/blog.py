@@ -35,6 +35,7 @@ class BlogUpdate(BaseModel):
     slug: Optional[str] = None
     article: Optional[str] = None
     excerpt: Optional[str] = None
+    is_published: Optional[bool] = None
 
 class BlogImageUpload(BaseModel):
     path_to_file: Optional[str] = None

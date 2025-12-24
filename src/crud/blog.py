@@ -69,11 +69,17 @@ async def list_blogs(
 async def update_blog(
     db: AsyncSession, blog_id: UUID, blog_data: BlogUpdate
 ) -> Optional[Blog]:
+    existing_blog = await get_blog_by_id(db, blog_id)
+    if not existing_blog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
+        )
     update_data = blog_data.model_dump(exclude_unset=True)
     if update_data:
         await db.execute(update(Blog).where(Blog.id == blog_id).values(**update_data))
         await db.commit()
-    return await get_blog_by_id(db, blog_id)
+        await db.refresh(existing_blog)
+    return existing_blog
 
 
 async def delete_blog(db: AsyncSession, blog_id: UUID) -> bool:

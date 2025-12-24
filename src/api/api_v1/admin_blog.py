@@ -36,15 +36,10 @@ async def admin_create_blog(
 
 @router.put("/blogs/{blog_id}", response_model=BlogRead)
 async def admin_update_blog(
-    blog_id: int,
+    blog_id: uuid.UUID,
     blog: BlogUpdate,
     db: AsyncSession = Depends(db_helper.session_getter),
 ):
-    existing_project = await get_blog_by_id(db, blog_id)
-    if not existing_project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Blog not found"
-        )
     updated_project = await update_blog(db, blog_id, blog)
     return updated_project
 
