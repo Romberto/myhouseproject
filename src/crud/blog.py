@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select, update, delete
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
@@ -13,9 +14,16 @@ from src.shemas.blog import BlogCreate, BlogUpdate, BlogImageUpload
 
 async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
     blog = Blog(**blog_data.model_dump())
-    db.add(blog)
-    await db.commit()
-    await db.refresh(blog)
+    try:
+        db.add(blog)
+        await db.commit()
+        await db.refresh(blog)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Blog with this slug already exists"
+            )
     return blog
 
 
