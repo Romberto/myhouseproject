@@ -15,6 +15,7 @@ class BlogBase(BaseModel):
     public_url: Optional[str] = None
     is_published: Optional[bool] = None
 
+
 class BlogCreate(BlogBase):
     article: Optional[str] = None
     excerpt: Optional[str] = None
@@ -36,11 +37,7 @@ class BlogUpdate(BaseModel):
     excerpt: Optional[str] = None
     is_published: Optional[bool] = None
 
+
 class BlogImageUpload(BaseModel):
     path_to_file: Optional[str] = None
     public_url: Optional[str] = None
-
-
-
-
-

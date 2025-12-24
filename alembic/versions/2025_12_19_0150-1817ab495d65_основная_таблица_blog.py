@@ -28,9 +28,7 @@ def upgrade() -> None:
         sa.Column("slug", sa.String(), nullable=False),
         sa.Column(
             "category",
-            sa.Enum(
-                "tips", "analytics", "technologies", name="blog_category_enum"
-            ),
+            sa.Enum("tips", "analytics", "technologies", name="blog_category_enum"),
             nullable=False,
         ),
         sa.Column("article", sa.Text(), nullable=True),

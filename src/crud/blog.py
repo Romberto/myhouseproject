@@ -22,27 +22,24 @@ async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Blog with this slug already exists"
-            )
+            detail="Blog with this slug already exists",
+        )
     return blog
 
 
 async def get_blog_by_id(db: AsyncSession, blog_id: UUID) -> Optional[Blog]:
-    result = await db.execute(
-        select(Blog).where(Blog.id == blog_id)
-    )
+    result = await db.execute(select(Blog).where(Blog.id == blog_id))
     return result.scalar_one_or_none()
 
 
 async def get_blog_by_slug(db: AsyncSession, slug: str) -> Optional[Blog]:
-    result = await db.execute(
-        select(Blog).where(Blog.slug == slug)
-    )
+    result = await db.execute(select(Blog).where(Blog.slug == slug))
     return result.scalar_one_or_none()
 
 
 from sqlalchemy import select, cast, String
 from typing import Optional, List
+
 
 async def list_blogs(
     db: AsyncSession,
@@ -63,7 +60,6 @@ async def list_blogs(
 
     result = await db.execute(query)
     return list(result.scalars().all())
-
 
 
 async def update_blog(
@@ -87,12 +83,13 @@ async def delete_blog(db: AsyncSession, blog_id: UUID) -> bool:
     await db.commit()
     return result.rowcount > 0
 
-async  def add_image_to_blog(db: AsyncSession,  blog_id: UUID, payload:BlogImageUpload):
+
+async def add_image_to_blog(db: AsyncSession, blog_id: UUID, payload: BlogImageUpload):
     blog = await get_blog_by_id(db, blog_id)
     if not blog:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
-            )
+        )
     if payload.path_to_file is not None:
         blog.path_to_file = payload.path_to_file
 
@@ -103,12 +100,11 @@ async  def add_image_to_blog(db: AsyncSession,  blog_id: UUID, payload:BlogImage
     await db.refresh(blog)
     return blog
 
+
 async def delete_blog_image_to_db(db: AsyncSession, blog_id: UUID):
     blog = await get_blog_by_id(db, blog_id)
-    path_to_file =  blog.path_to_file
+    path_to_file = blog.path_to_file
     blog.path_to_file = None
     blog.public_url = None
     await db.commit()
     return path_to_file
-
-
