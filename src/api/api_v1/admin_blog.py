@@ -78,13 +78,13 @@ async def admin_upload_blog_image(
     _blog = await add_image_to_blog(db, blog_id, payload)
     return _blog
 
-@router.delete("/blogs/{blog_id}/images")
-async def delete_blog_image(db:AsyncSession, blog_id: uuid.UUID):
-    path_to_file = await delete_blog_image_to_db(db, blog_id)
-    if path_to_file:
-        remove_storage_file = await delete_file_storage(path_to_file)
-        if remove_storage_file:
-            return {'message': "success delete blog image"}
-    return {'message':'error delete blog image'}
+# @router.delete("/blogs/{blog_id}/images")
+# async def delete_blog_image(db:AsyncSession, blog_id: uuid.UUID):
+#     path_to_file = await delete_blog_image_to_db(db, blog_id)
+#     if path_to_file:
+#         remove_storage_file = await delete_file_storage(path_to_file)
+#         if remove_storage_file:
+#             return {'message': "success delete blog image"}
+#     return {'message':'error delete blog image'}
 
 
