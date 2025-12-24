@@ -32,7 +32,6 @@ class BlogRead(BlogBase):
 
 class BlogUpdate(BaseModel):
     title: Optional[str] = None
-    slug: Optional[str] = None
     article: Optional[str] = None
     excerpt: Optional[str] = None
     is_published: Optional[bool] = None
