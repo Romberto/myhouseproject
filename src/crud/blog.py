@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from starlette import status
 
 from src.core.models.blog import Blog
-from src.shemas.blog import BlogCreate, BlogUpdate
+from src.shemas.blog import BlogCreate, BlogUpdate, BlogImageUpload
 
 
 async def create_blog(db: AsyncSession, blog_data: BlogCreate) -> Blog:
@@ -72,6 +72,22 @@ async def delete_blog(db: AsyncSession, blog_id: UUID) -> bool:
     result = await db.execute(delete(Blog).where(Blog.id == blog_id))
     await db.commit()
     return result.rowcount > 0
+
+async  def add_image_to_blog(db: AsyncSession,  blog_id: UUID, payload:BlogImageUpload):
+    blog = await get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
+    if payload.path_to_file is not None:
+        blog.path_to_file = payload.path_to_file
+
+    if payload.public_url is not None:
+        blog.public_url = payload.public_url
+
+    await db.commit()
+    await db.refresh(blog)
+    return blog
 
 
 

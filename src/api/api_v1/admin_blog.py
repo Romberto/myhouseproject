@@ -1,3 +1,4 @@
+import uuid
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
@@ -11,13 +12,12 @@ from src.crud.blog import (
     create_blog,
     get_blog_by_id,
     update_blog,
-    delete_blog,
+    delete_blog, add_image_to_blog,
 
-)
+    )
 from src.servises.storage import s3, delete_file_storage
 
-from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate
-
+from src.shemas.blog import BlogCreate, BlogRead, BlogUpdate, BlogImageUpload
 
 router = APIRouter(
     dependencies=[Depends(require_admin)],
@@ -72,5 +72,15 @@ async def admin_delete_blog(
             detail="Failed to delete blog",
         )
     return {"message": "Blog deleted successfully"}
+
+
+@router.post("/blog/{project_id}/images", response_model=BlogRead)
+async def admin_upload_blog_image(
+    blog_id: uuid.UUID,
+    payload: BlogImageUpload,
+    db: AsyncSession = Depends(db_helper.session_getter),
+):
+    _blog = await add_image_to_blog(db, blog_id, payload)
+    return _blog
 
 

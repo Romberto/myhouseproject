@@ -36,6 +36,10 @@ class BlogUpdate(BaseModel):
     article: Optional[str] = None
     excerpt: Optional[str] = None
 
+class BlogImageUpload(BaseModel):
+    path_to_file: Optional[str] = None
+    public_url: Optional[str] = None
+
 
 
 
