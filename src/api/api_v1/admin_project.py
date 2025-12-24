@@ -87,9 +87,9 @@ async def admin_delete_project(
     return {"message": "Project deleted successfully"}
 
 
-@router.post("/projects/storage/presign")
-async def get_presign_project_url(data: StorageProject):
-    file_path = f"projects/{data.slug}/{uuid4()}.webp"
+@router.post("/{dir}/storage/presign")
+async def get_presign_project_url(data: StorageProject, dir:str):
+    file_path = f"{dir}/{data.slug}/{uuid4()}.webp"
 
     upload_url = s3.generate_presigned_url(
         "put_object",
