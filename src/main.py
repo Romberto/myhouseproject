@@ -20,6 +20,7 @@ main_app = FastAPI(lifespan=lifespan)
 
 origins = [
     "https://romberto.github.io",
+    "https://nordicsip.ru",
     "http://localhost:5173",  # твой фронтенд
     "http://127.0.0.1:5173",  # иногда нужно
     "http://localhost:3000",
