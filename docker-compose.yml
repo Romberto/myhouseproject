@@ -42,6 +42,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
+      - /home/deploy/myhouseproject/front/dist:/usr/share/nginx/html:ro
     networks:
       - projhouse-net
     depends_on:
