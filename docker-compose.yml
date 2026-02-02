@@ -44,14 +44,6 @@ services:
       - web
     networks:
       - projhouse-net
-    command: >
-      sh -c "
-      until nc -z web 8000; do
-        echo 'Waiting for FastAPI...';
-        sleep 2;
-      done;
-      nginx -g 'daemon off;'
-      "
 
   certbot:
     image: certbot/certbot
