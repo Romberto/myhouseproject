@@ -1,9 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   db:
     image: postgres:16
-    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: general
@@ -13,8 +12,6 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - projhouse-net
-    ports:
-      - "5432:5432"
 
   web:
     build: .
@@ -42,22 +39,32 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
       - /home/deploy/myhouseproject/front/dist:/usr/share/nginx/html:ro
-    networks:
-      - projhouse-net
     depends_on:
       - web
+    networks:
+      - projhouse-net
+    command: >
+      sh -c "
+      until nc -z web 8000; do
+        echo 'Waiting for FastAPI...';
+        sleep 2;
+      done;
+      nginx -g 'daemon off;'
+      "
 
   certbot:
     image: certbot/certbot
-    container_name: certbot
     volumes:
       - ./nginx/certbot/www:/var/www/certbot
       - ./nginx/certbot/conf:/etc/letsencrypt
     entrypoint: >
-      sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook 'nginx -s reload'; done"
+      sh -c "trap exit TERM;
+      while :; do
+        sleep 12h & wait $${!};
+        certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook 'nginx -s reload';
+      done"
     networks:
       - projhouse-net
-
 
 volumes:
   db_data:
