@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
   db:
@@ -15,7 +14,10 @@ services:
       - projhouse-net
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
     restart: always
     env_file:
       - .env
@@ -29,6 +31,21 @@ services:
     networks:
       - projhouse-net
 
+  frontend:
+    build:
+      context: ../front            # 👈 ДРУГОЙ РЕПОЗИТОРИЙ
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+    expose:
+      - "3000"
+    depends_on:
+      - web
+    networks:
+      - projhouse-net
+
   nginx:
     image: nginx:stable
     restart: always
@@ -39,9 +56,9 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
-      - /home/deploy/myhouseproject/front/dist:/usr/share/nginx/html:ro
     depends_on:
       - web
+      - frontend
     networks:
       - projhouse-net
 
@@ -64,3 +81,4 @@ volumes:
 
 networks:
   projhouse-net:
+    driver: bridge
