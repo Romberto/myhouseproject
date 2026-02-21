@@ -17,8 +17,8 @@ from src.core.models.base import Base
 class Project(Base):
     __tablename__ = "projects"
 
-    title = Column(String, nullable=False)
-    slug = Column(String, unique=True, nullable=False, index=True)
+    title = Column(String(250), nullable=False)
+    slug = Column(String(150), unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True)
     shot_description = Column(Text, nullable=True)
     quadrature = Column(Integer)
