@@ -21,7 +21,7 @@ class Project(Base):
     slug = Column(String(150), unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True)
     shot_description = Column(Text, nullable=True)
-    quadrature = Column(Integer)
+    quadrature = Column(Integer,default=1)
     is_published = Column(Boolean, default=False)
     floors = Column(Integer, default=1)
     bedrooms = Column(Integer, default=1)

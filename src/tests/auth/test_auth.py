@@ -1,9 +1,6 @@
 import pytest
 from httpx import AsyncClient
 
-from shemas.projects import ProjectCreate
-from src.api.api_v1.auth import login_with_password
-
 
 @pytest.mark.parametrize(
     "data, status_code", [
@@ -15,7 +12,7 @@ from src.api.api_v1.auth import login_with_password
 )
 @pytest.mark.asyncio
 async def test_login_with_password(async_not_auth_client: AsyncClient, data, status_code):
-    response = await async_not_auth_client.post("/api/v1/login/password", json=data)
+    response = await async_not_auth_client.post("/login/password", json=data)
     assert response.status_code == status_code
 
 
@@ -31,5 +28,5 @@ async def test_login_with_password(async_not_auth_client: AsyncClient, data, sta
 )
 @pytest.mark.asyncio
 async def test_create_project_no_auth(async_not_auth_client: AsyncClient, data):
-    response = await async_not_auth_client.post('/api/v1/admin/projects', json=data)
+    response = await async_not_auth_client.post('/admin/projects', json=data)
     assert response.status_code == 401

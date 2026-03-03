@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import HTTPException
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
@@ -15,8 +15,29 @@ from src.shemas.projects import ProjectCreate, ProjectUpdate, ImageCreate
 
 async def create_project(db: AsyncSession, project_data: ProjectCreate) -> Project:
     project = Project(**project_data.model_dump())
+    if project.bedrooms < 0  or project.floors < 1:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred bedrooms or floors",
+            )
     db.add(project)
-    await db.commit()
+
+
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Project with this slug already exists",
+            )
+    except SQLAlchemyError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred",
+            )
+
 
     stmt = (
         select(Project)

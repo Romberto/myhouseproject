@@ -32,16 +32,14 @@ class ProjectBase(BaseModel):
     title: str
     slug: str
     description: Optional[str] = None
-    is_published: bool = False
+    is_published: Optional[bool] = False
 
 
 class ProjectCreate(ProjectBase):
-    title: str
-    slug: str
-    shot_description: str
-    quadrature: int
-    floors: int = 1
-    bedrooms: int = 1
+    shot_description: Optional[str] = None
+    quadrature: Optional[int] = 0
+    floors: Optional[int] = 1
+    bedrooms: Optional[int] = 1
 
 
 class ImageCreate(BaseModel):
@@ -68,10 +66,11 @@ class ProjectRead(ProjectBase):
     created_at: datetime
     updated_at: datetime
     images: List[ImageRead] = []
-    shot_description: str
-    quadrature: int
-    floors: int
-    bedrooms: int
+    shot_description: Optional[str] = None
+    description: Optional[str] = None
+    quadrature: Optional[int] = 0
+    floors: Optional[int] = 1
+    bedrooms: Optional[int] = 1
 
     model_config = ConfigDict(from_attributes=True)
 

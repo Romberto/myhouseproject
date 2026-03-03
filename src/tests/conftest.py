@@ -1,12 +1,13 @@
 # Указываем backend
 import pytest
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import NullPool
+from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from fastapi.testclient import TestClient
 
 from src.config import settings
 from src.core.models.base import Base
+from src.core.models.db_helper import DataBaseHelper, db_helper
 from src.crud.project import create_project, add_image_to_project
 from src.main import main_app
 from src.shemas.projects import ProjectCreate, ImageCreate
@@ -22,10 +23,11 @@ def anyio_backend():
 @pytest.fixture(scope="session")
 async def engine():
     engine = create_async_engine(
-        str(settings.db.test_url),
+        # str(settings.db.test_url),
+        "postgresql+asyncpg://general:testecret@localhost:5441/test_db",
         echo=False,
         poolclass=NullPool,  # ВАЖНО: без пула, чтобы избежать конфликтов loop'ов
-    )
+        )
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -44,16 +46,23 @@ async def session(engine):
     async with async_session() as session:
         yield session
 
+
 @pytest.fixture
-async def async_auth_client():
+async def async_auth_client(engine):
     async def override_require_admin():
         return {"user_id": 1}  # любой admin id
 
+    async def override_db():
+        async_session = async_sessionmaker(engine, expire_on_commit=False)
+        async with async_session() as session:
+            yield session
+
     main_app.dependency_overrides[require_admin] = override_require_admin
+    main_app.dependency_overrides[db_helper.session_getter] = override_db
     async with AsyncClient(
-        transport=ASGITransport(app=main_app),
-        base_url="http://127.0.0.1:8000"
-    ) as ac:
+            transport=ASGITransport(app=main_app),
+            base_url="http://127.0.0.1:8000/api/v1"
+            ) as ac:
         yield ac
 
 
@@ -61,41 +70,6 @@ async def async_auth_client():
 async def async_not_auth_client():
     async with AsyncClient(
             transport=ASGITransport(app=main_app),
-            base_url="http://127.0.0.1:8000"
+            base_url="http://127.0.0.1:8000/api/v1"
     ) as ac:
         yield ac
-
-# @pytest.fixture(scope="function")
-# async def project(session):
-#     project = await create_project(
-#         session,
-#         ProjectCreate(
-#             title="Slug test",
-#             slug="slug-test",
-#             shot_description="desc",
-#             quadrature=100,
-#         ),
-#     )
-#     return project
-#
-#
-# @pytest.fixture(scope="function")
-# async def images(session, project):
-#     image_data1 = ImageCreate(
-#         path_to_file="img1.jpg",
-#         public_url="http://img",
-#         is_preview=False,
-#         is_plan=False,
-#         is_gallery=True,
-#     )
-#     image_data2 = ImageCreate(
-#         path_to_file="img2.jpg",
-#         public_url="http://img",
-#         is_preview=False,
-#         is_plan=False,
-#         is_gallery=True,
-#     )
-#     img1 = await add_image_to_project(session, project.id, image_data1)
-#     img2 = await add_image_to_project(session, project.id, image_data2)
-#
-#     return img1, img2
