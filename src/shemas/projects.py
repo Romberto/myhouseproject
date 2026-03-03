@@ -36,6 +36,8 @@ class ProjectBase(BaseModel):
 
 
 class ProjectCreate(ProjectBase):
+    title: str
+    slug: str
     shot_description: str
     quadrature: int
     floors: int = 1

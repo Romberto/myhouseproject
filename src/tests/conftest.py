@@ -10,6 +10,7 @@ from src.core.models.base import Base
 from src.crud.project import create_project, add_image_to_project
 from src.main import main_app
 from src.shemas.projects import ProjectCreate, ImageCreate
+from src.api.api_v1.dependencies import require_admin
 
 
 @pytest.fixture(scope="session")
@@ -44,7 +45,11 @@ async def session(engine):
         yield session
 
 @pytest.fixture
-async def async_client():
+async def async_auth_client():
+    async def override_require_admin():
+        return {"user_id": 1}  # любой admin id
+
+    main_app.dependency_overrides[require_admin] = override_require_admin
     async with AsyncClient(
         transport=ASGITransport(app=main_app),
         base_url="http://127.0.0.1:8000"
@@ -52,6 +57,13 @@ async def async_client():
         yield ac
 
 
+@pytest.fixture
+async def async_not_auth_client():
+    async with AsyncClient(
+            transport=ASGITransport(app=main_app),
+            base_url="http://127.0.0.1:8000"
+    ) as ac:
+        yield ac
 
 # @pytest.fixture(scope="function")
 # async def project(session):
